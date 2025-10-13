@@ -88,7 +88,7 @@ function Header() {
             className="flex items-center gap-2 hover:opacity-70 focus:outline-none"
           >
             <img src={user} className="w-8 h-8" alt="user" />
-            <span className="text-base leading-6 font-medium">Admin</span>
+            <span className="text-base leading-6 font-medium">Hi Admin</span>
           </button>
 
           {showUserDropdown && (
