@@ -6,9 +6,10 @@ import Login from './auth/Login';
 function App() {
   return (
     <Routes>
+      {/* <Route index element={<Login />} />  Default route under Layout */}
+      <Route path="login" element={<Login />} />  {/* /login route */}
       <Route path="/" element={<Layout />}>
-        <Route index element={<Login />} />  {/* Default route under Layout */}
-        <Route path="login" element={<Login />} />  {/* /login route */}
+
       </Route>
     </Routes>
   );
