@@ -49,7 +49,9 @@ function Login() {
       <div className="w-1/2 relative">
         <img src={LoginBg} alt="Login Background" className="w-full  h-full  " />
         <div className="absolute bottom-20 left-20 ">
+
           <h1 className="text-[40px] leading-[48px] text-[#EDEDED] font-bold">Manage,<br />Monitor, Master.</h1>
+
         </div>
       </div>
 
