@@ -4,7 +4,8 @@ import Logo from "@assets/Login/logo.svg";
 import LoginBg from "@assets/Login/loginBg.png";
 import eyes from "@assets/Login/visibility.svg";
 import eyesOff from "@assets/Login/visibility_off.svg";
-import Api from "../Services/Api";
+import Api from "../services/Api";
+
 
 function Login() {
   const [email, setEmail] = useState("");
