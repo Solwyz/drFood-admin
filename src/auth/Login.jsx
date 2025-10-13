@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Logo from "@assets/Login/logo.svg";
+import Logo from "@assets/Login/logo.png";
 import LoginBg from "@assets/Login/loginBg.png";
 import eyes from "@assets/Login/visibility.svg";
 import eyesOff from "@assets/Login/visibility_off.svg";
@@ -57,7 +57,7 @@ function Login() {
 
       {/* Right side with login form */}
       <div className="w-full md:w-1/2  py-12 pr-12 pl-20">
-        <div className="justify-end flex items-end"><img src={Logo} alt="Logo" className=" w-[115px] h-[54px]" /></div>
+        <div className="justify-end flex items-end"><img src={Logo} alt="Logo" className=" w-[100px] h-[80px]" /></div>
 
         <div className="w-full mt-[66px] max-w-sm">
           <h2 className="text-[40px] leading-10 font-bold text-[#304BA0] mb-2">Log in</h2>

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import logoWhite from "@assets/layouts/logoWhite.svg";
+import logoWhite from "@assets/Login/logo.png";
 import dashboard from "@assets/layouts/dashboard.svg";
 import dashboardWhite from "@assets/layouts/dashboardActive.svg";
 import Products from "@assets/layouts/product.svg";
@@ -63,8 +63,8 @@ function Sidebar() {
     <div className="left-0 top-0 h-screen w-[272px] bg-[#192030] shadow-lg flex flex-col justify-between overflow-y-auto">
       {/* Logo Section */}
       <div className="pt-[30px]">
-        <img src={logoWhite} className="mx-auto w-[107px] h-[50px]" alt="Logo" />
-        <p className="text-[#6F7583] font-medium text-center text-sm leading-5">
+        <img src={logoWhite} className="mx-auto w-[107px] h-[80px]" alt="Logo" />
+        <p className="text-[#6F7583] mt-2 font-medium text-center text-sm leading-5">
           Admin Dashboard
         </p>
         <div className="flex items-center text-[#6F7583] mt-6 gap-2">
