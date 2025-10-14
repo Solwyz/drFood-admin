@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const apiUrl = import.meta.env.VITE_API_URL || "https://api.solwys.com/Ecommerce"
+const apiUrl = import.meta.env.VITE_API_URL || "http://192.168.29.214:8001/DrFood"
 
 const Api = {
 

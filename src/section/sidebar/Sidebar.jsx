@@ -39,14 +39,14 @@ function Sidebar() {
         { label: "Order management", to: "/order", icon: OrderM, activeIcon: OrderMWhite },
         { label: "Category management", to: "/categories", icon: Products, activeIcon: ProductsWhite },
         { label: "Ads and Banners", to: "/adds-banners", icon: Ads, activeIcon: AdsWhite },
-        { label: "Coupon Management", to: "/coupon", icon: Coupon, activeIcon: CouponWhite },
+        { label: "Blog Management", to: "/blog", icon: Coupon, activeIcon: CouponWhite },
         { label: "User management", to: "/users", icon: UseraM, activeIcon: UseraMWhite },
       ],
     },
     {
       section: "HELP & SUPPORT",
       items: [
-        { label: "Enquiries", to: "/enquiries", icon: Enquiries, activeIcon: EnquiriesWhite },
+        { label: "Enquiries", to: "/enquiry", icon: Enquiries, activeIcon: EnquiriesWhite },
         { label: "Settings", to: "/settings", icon: Settings, activeIcon: SettingsWhite },
         {
           label: "Logout",
