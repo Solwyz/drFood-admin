@@ -39,7 +39,7 @@ function Sidebar() {
         { label: "Order management", to: "/order", icon: OrderM, activeIcon: OrderMWhite },
         { label: "Category management", to: "/categories", icon: Products, activeIcon: ProductsWhite },
         { label: "Ads and Banners", to: "/adds-banners", icon: Ads, activeIcon: AdsWhite },
-        { label: "Blog Management", to: "/blog", icon: Coupon, activeIcon: CouponWhite },
+        { label: "Blog Management", to: "/blogs", icon: Coupon, activeIcon: CouponWhite },
         { label: "User management", to: "/users", icon: UseraM, activeIcon: UseraMWhite },
       ],
     },
