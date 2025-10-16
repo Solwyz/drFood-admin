@@ -5,6 +5,7 @@ import Layout from "./Layout";
 import Login from "./auth/Login";
 import EnquiryPage from "./pages/enquiryPage/EnquiryPage";
 import ProductPage from './Pages/ProductPage/ProductPage';
+import CategoryPage from "./pages/CategoryPage/CategoryPage";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
       <Route path="/" element={<Layout />}>
         <Route path="enquiry" element={<EnquiryPage />} />
         <Route path='products' element={<ProductPage />} />
+        <Route path='categories' element={<CategoryPage />} />
       </Route>
     </Routes>
   );
