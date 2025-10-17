@@ -1,0 +1,13 @@
+/* Tiptap basic styles */
+.ProseMirror {
+    min-height: 150px;
+    outline: none;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  
+  .ProseMirror p {
+    margin: 0;
+    padding: 0.3em 0;
+  }
+  
