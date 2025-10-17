@@ -106,7 +106,7 @@ function Categories() {
     // ✅ Delete category
     const handleDeleteCategory = () => {
         if (!deleteId) return;
-        Api.delete(`api/category/${deleteId}`)
+        Api.delete(`category/${deleteId}`)
             .then(response => {
                 if (response && response.status === 200) {
                     setShowDeleteModal(false);
