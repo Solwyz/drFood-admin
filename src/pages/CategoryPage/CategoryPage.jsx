@@ -167,7 +167,7 @@ function Categories() {
                 </div>
             </div>
 
-            {/* Modal Form (used for Add & Edit) */}
+            {/* Modal Form (used for Add & Editt) */}
             {showForm && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40">
                     <div className="bg-white p-6 rounded-lg shadow-lg w-[400px]">
