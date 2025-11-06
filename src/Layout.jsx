@@ -10,7 +10,7 @@ function Layout() {
       <div className="flex-1 flex flex-col overflow-auto">
         <Header />
         <main className="p-4 flex-1 bg-[#F2F1ED] max-w-screen-xl overflow-y-auto">
-          <Outlet />
+          <Outlet/>
         </main>
       </div>
     </div>

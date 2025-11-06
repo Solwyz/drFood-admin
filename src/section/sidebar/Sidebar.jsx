@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import logoWhite from "@assets/Login/logo.png";
+import logoWhite from "@assets/Login/adminlogo.svg";
 import dashboard from "@assets/layouts/dashboard.svg";
 import dashboardWhite from "@assets/layouts/dashboardActive.svg";
 import Products from "@assets/layouts/product.svg";
@@ -34,7 +34,7 @@ function Sidebar() {
     {
       section: "MAIN MENU",
       items: [
-        { label: "Dashboard", to: "/", icon: dashboard, activeIcon: dashboardWhite },
+        { label: "Dashboard", to: "/dashboard", icon: dashboard, activeIcon: dashboardWhite },
         { label: "Products", to: "/products", icon: Products, activeIcon: ProductsWhite },
         { label: "Order management", to: "/order", icon: OrderM, activeIcon: OrderMWhite },
         { label: "Category management", to: "/categories", icon: Products, activeIcon: ProductsWhite },
@@ -60,11 +60,11 @@ function Sidebar() {
   ];
 
   return (
-    <div className="left-0 top-0 h-screen w-[272px] bg-[#192030] shadow-lg flex flex-col justify-between overflow-y-auto">
+    <div className="left-0 top-0 h-screen w-[272px] bg-[#352B20] shadow-lg flex flex-col justify-between overflow-y-auto">
       {/* Logo Section */}
       <div className="pt-[30px]">
-        <img src={logoWhite} className="mx-auto w-[107px] h-[80px]" alt="Logo" />
-        <p className="text-[#6F7583] mt-2 font-medium text-center text-sm leading-5">
+        <img src={logoWhite} className="mx-auto w-[74px] h-[72px]" alt="Logo" />
+        <p className="text-[#ffffff] mt-2 font-light text-center text-sm leading-5">
           Admin Dashboard
         </p>
         <div className="flex items-center text-[#6F7583] mt-6 gap-2">
@@ -76,7 +76,7 @@ function Sidebar() {
       <div className="flex-1">
         {menuItems.map((section, i) => (
           <div key={i}>
-            <p className="text-[#919191] font-semibold text-xs leading-5 px-6 mt-6 mb-4">
+            <p className="text-[#ffffff] font-semibold text-xs leading-5 px-6 mt-6 mb-4">
               {section.section}
             </p>
             {section.items.map((item, index) => (
@@ -137,7 +137,7 @@ function SidebarItem({ label, to, icon, activeIcon, isActive, onClick }) {
     >
       <div
         className={`flex items-center gap-4 p-4 cursor-pointer transition-colors ${
-          isActive ? "bg-[#2D364B]" : "hover:bg-[#2D364B]"
+          isActive ? "bg-[#574837]" : "hover:bg-[#574837]"
         }`}
       >
         <img src={isActive ? activeIcon : icon} alt={`${label} icon`} />

@@ -37,14 +37,13 @@ function Header() {
   ];
 
   return (
-    <div className="w-full h-[80px] bg-white flex items-center justify-between px-8 py-6 shadow-lg relative">
+    <div className="w-full h-[80px] bg-white flex items-center justify-end px-8 py-6 shadow-lg relative">
       {/* Left side (title or breadcrumb) */}
-      <div className="text-lg font-semibold">Dashboard</div>
 
       {/* Right side (actions) */}
       <div className="flex items-center gap-6 relative">
         {/* Alert Dropdown */}
-        <div className="relative" ref={alertRef}>
+        <div className="relative w-8 h-8" ref={alertRef}>
           <button
             onClick={() => {
               setShowAlertDropdown(!showAlertDropdown);
@@ -52,7 +51,7 @@ function Header() {
             }}
             className="hover:opacity-70 focus:outline-none"
           >
-            <img src={alert} className="w-8 h-8" alt="alerts" />
+            <img src={alert} className="" alt="alerts" />
           </button>
 
           {showAlertDropdown && (
