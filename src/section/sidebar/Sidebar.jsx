@@ -34,10 +34,10 @@ function Sidebar() {
     {
       section: "MAIN MENU",
       items: [
-        { label: "Dashboard", to: "/dashboard", icon: dashboard, activeIcon: dashboardWhite },
+        { label: "Dashboard", to: "/", icon: dashboard, activeIcon: dashboardWhite },
         { label: "Products", to: "/products", icon: Products, activeIcon: ProductsWhite },
-        { label: "Order management", to: "/order", icon: OrderM, activeIcon: OrderMWhite },
-        { label: "Category management", to: "/categories", icon: Products, activeIcon: ProductsWhite },
+        { label: "Order management", to: "/orders", icon: OrderM, activeIcon: OrderMWhite },
+        // { label: "Category management", to: "/categories", icon: Products, activeIcon: ProductsWhite },
         { label: "Ads and Banners", to: "/adds-banners", icon: Ads, activeIcon: AdsWhite },
         { label: "Blog Management", to: "/blogs", icon: Coupon, activeIcon: CouponWhite },
         { label: "User management", to: "/users", icon: UseraM, activeIcon: UseraMWhite },

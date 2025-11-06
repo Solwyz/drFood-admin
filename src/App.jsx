@@ -9,6 +9,8 @@ import BlogPage from "./pages/blogPage/BlogPage";
 import BlogForm from "./pages/blogPage/BlogForm";
 import Categories from "./pages/CategoryPage/CategoryPage";
 import Dashboard from "./Pages/dashBoard/dashBoard";
+import OrderManagement from "./Pages/Order/Ordermanagement";
+import AdsAndBanners from "./Pages/AdsAndBanner/AdsAndBanner";
 
 function App() {
   return (
@@ -16,9 +18,11 @@ function App() {
       {/* <Route index element={<Login />} />  Default route under Layout */}
       <Route path="login" element={<Login />} /> {/* /login route */}
       <Route path="/" element={<Layout />}>
-      <Route path="dashboard" element={<Dashboard/>} />
+      <Route path="/" element={<Dashboard/>} />
         <Route path="enquiry" element={<EnquiryPage />} />
         <Route path='products' element={<ProductPage />} />
+        <Route path='orders' element={<OrderManagement  />} />
+        <Route path='adds-banners' element={<AdsAndBanners />} />
         <Route path='categories' element={<Categories />} />
         <Route path='blogs' element={<BlogPage />} />
         <Route path='blogPageForm' element={<BlogForm />} />
