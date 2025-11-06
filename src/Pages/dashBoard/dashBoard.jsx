@@ -39,22 +39,21 @@ const Dashboard = () => {
     const [overviewData, setOverviewData] = useState(null);
 
     const token = localStorage.getItem("token");
-    
+
+
 
     useEffect(() => {
+        console.log('tokkknnn', token);
         const fetchOrderData = async () => {
             try {
                 const res = await Api.get("order/graphical"
                     , {
-                        headers: {
-                            Authorization: `Bearer ${token}`
-                        }
-
+                        
+                            'Authorization': `Bearer ${token}`
+                        
                     });
+                console.log("Order graph data response:", res);
 
-                console.log("Request headers:", {
-                    Authorization: `Bearer ${token}`,
-                });
 
 
                 if (res.data.success === "true") {
@@ -102,7 +101,12 @@ const Dashboard = () => {
 
 
     useEffect(() => {
-        Api.get('order/sort/byDate')
+        Api.get('order/sort/byDate'
+            , {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
             .then(response => {
                 if (response && response.status === 200) {
                     console.log('zzzz redspp', response.data);

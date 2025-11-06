@@ -30,7 +30,7 @@ function Login() {
 
       console.log("Login response:", response);
       if (response && response.status === 200) {
-        const token = response.data.jwt;
+        const token = response.data.token;
         console.log(token);
         localStorage.setItem("token", token);
         navigate("/");
