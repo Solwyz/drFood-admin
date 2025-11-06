@@ -23,7 +23,7 @@ function Login() {
     }
 
     try {
-      const response = await Api.post("user/admin", {
+      const response = await Api.post("api/auth/admin", {
         username: email,
         password: password,
       });

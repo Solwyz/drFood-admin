@@ -212,6 +212,7 @@ const ProductManagement = () => {
               <tbody>
                 {products.map((prod) => (
                   <tr
+                    onClick={() => setViewProduct(prod)}
                     key={prod.id}
                     className="border-b border-[#F2F2F2] text-[#171717] font-normal text-sm leading-4  hover:bg-[#F8F3F1]"
                   >
@@ -387,10 +388,10 @@ const ProductManagement = () => {
               <div>
                 <img
                   src={viewProduct.imageUrls}
-                  className="w-[197px] h-[217px] object-cover rounded-lg"
+                  className="w-[187px] h-[192px] object-cover rounded-lg"
                 />
               </div>{" "}
-              <div className="mt-4">
+              <div className="flex flex-col justify-between">
                 <h2 className="text-base font-medium leading-4 text-[#050710]">
                   {viewProduct.name}
                 </h2>
@@ -400,32 +401,19 @@ const ProductManagement = () => {
                 <div className="mt-8 space-y-3">
                   <div className="flex justify-between text-sm leading-4">
                     <span className="text-[#A2A2A2] font-medium">
-                      Material:
+                      ProductId:
                     </span>
                     <span className="text-[#050710] w-[250px] text-end font-medium">
-                      {viewProduct?.specification?.Material?.length > 0
-                        ? viewProduct.specification.Material.join(", ")
-                        : "N/A"}
+                      #{viewProduct.id}
                     </span>
                   </div>
 
                   <div className="flex justify-between text-sm leading-4">
                     <span className="text-[#A2A2A2] font-medium">
-                      Quantity:
+                      Category:
                     </span>
                     <span className="text-[#050710] font-medium">
-                      {viewProduct.stockQuantity}
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between text-sm leading-4">
-                    <span className="text-[#A2A2A2] font-medium">
-                      Capacity:
-                    </span>
-                    <span className="text-[#050710] font-medium">
-                      {viewProduct?.specification?.Capacity?.length > 0
-                        ? viewProduct.specification.Capacity.join(", ")
-                        : "N/A"}
+                      {viewProduct.category}
                     </span>
                   </div>
 
