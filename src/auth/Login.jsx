@@ -4,8 +4,7 @@ import Logo from "@assets/Login/logo.png";
 import LoginBg from "@assets/Login/loginBg.png";
 import eyes from "@assets/Login/visibility.svg";
 import eyesOff from "@assets/Login/visibility_off.svg";
-import Api from "../services/Api";
-
+import Api from "../Services/Api";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -16,7 +15,7 @@ function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    console.log('login click')
+    console.log("login click");
 
     if (!email || !password) {
       setError(true);
@@ -24,7 +23,7 @@ function Login() {
     }
 
     try {
-      const response = await Api.post("api/admin/login", {
+      const response = await Api.post("user/admin", {
         username: email,
         password: password,
       });
@@ -32,6 +31,7 @@ function Login() {
       console.log("Login response:", response);
       if (response && response.status === 200) {
         const token = response.data.jwt;
+        console.log(token);
         localStorage.setItem("token", token);
         navigate("/");
       } else {
@@ -47,21 +47,33 @@ function Login() {
     <div className="flex h-screen">
       {/* Left side with image and text */}
       <div className="w-1/2 relative">
-        <img src={LoginBg} alt="Login Background" className="w-full  h-full  " />
+        <img
+          src={LoginBg}
+          alt="Login Background"
+          className="w-full  h-full  "
+        />
         <div className="absolute bottom-20 left-20 ">
-
-          <h1 className="text-[40px] leading-[48px] text-[#EDEDED] font-bold">Manage,<br />Monitor, Master.</h1>
-
+          <h1 className="text-[40px] leading-[48px] text-[#EDEDED] font-bold">
+            Manage,
+            <br />
+            Monitor, Master.
+          </h1>
         </div>
       </div>
 
       {/* Right side with login form */}
       <div className="w-full md:w-1/2  py-12 pr-12 pl-20">
-        <div className="justify-end flex items-end"><img src={Logo} alt="Logo" className=" w-[100px] h-[80px]" /></div>
+        <div className="justify-end flex items-end">
+          <img src={Logo} alt="Logo" className=" w-[100px] h-[80px]" />
+        </div>
 
         <div className="w-full mt-[66px] max-w-sm">
-          <h2 className="text-[40px] leading-10 font-bold text-[#304BA0] mb-2">Log in</h2>
-          <p className="text-[#555555] leading-6 text-sm font-normal ">Access your account. Anytime, anywhere.</p>
+          <h2 className="text-[40px] leading-10 font-bold text-[#304BA0] mb-2">
+            Log in
+          </h2>
+          <p className="text-[#555555] leading-6 text-sm font-normal ">
+            Access your account. Anytime, anywhere.
+          </p>
 
           <form onSubmit={handleLogin} className=" mt-12">
             <div>

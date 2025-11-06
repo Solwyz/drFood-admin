@@ -1,8 +1,7 @@
-import React from 'react';
-import Sidebar from './section/sidebar/Sidebar';
-import Header from './section/header/Header';
-import { Outlet } from 'react-router-dom';
-
+import React from "react";
+import Sidebar from "./section/sidebar/Sidebar";
+import Header from "./section/header/Header";
+import { Outlet } from "react-router-dom";
 
 function Layout() {
   return (
@@ -10,8 +9,8 @@ function Layout() {
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-auto">
         <Header />
-        <main className="p-4 flex-1 bg-[#F5F6FA] max-w-screen-xl overflow-y-auto">
-          <Outlet/>
+        <main className="p-4 flex-1 bg-[#F2F1ED] max-w-screen-xl overflow-y-auto">
+          <Outlet />
         </main>
       </div>
     </div>
