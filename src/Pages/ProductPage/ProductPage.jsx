@@ -46,7 +46,11 @@ const ProductManagement = () => {
     console.log(token);
     console.log(Api.get("product/all"));
     try {
-      const res = await Api.get(`product/all`);
+      const res = await Api.get(`product/all`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       console.log("✅ API Raw Response:", res);
 
