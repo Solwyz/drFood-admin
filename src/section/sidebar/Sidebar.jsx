@@ -20,6 +20,7 @@ import SettingsWhite from "@assets/layouts/settingswhite.svg";
 import Logout from "@assets/layouts/logout.svg";
 import LogoutWhite from "@assets/layouts/LogoutWhite.svg";
 import logoutIcn from "@assets/layouts/logoutIvon.svg";
+import recipe from "@assets/layouts/recipe.svg";
 
 function Sidebar() {
   const location = useLocation();
@@ -34,20 +35,66 @@ function Sidebar() {
     {
       section: "MAIN MENU",
       items: [
-        { label: "Dashboard", to: "/", icon: dashboard, activeIcon: dashboardWhite },
-        { label: "Products", to: "/products", icon: Products, activeIcon: ProductsWhite },
-        { label: "Order management", to: "/orders", icon: OrderM, activeIcon: OrderMWhite },
+        {
+          label: "Dashboard",
+          to: "/",
+          icon: dashboard,
+          activeIcon: dashboardWhite,
+        },
+        {
+          label: "Products",
+          to: "/categories",
+          icon: Products,
+          activeIcon: ProductsWhite,
+        },
+        {
+          label: "Order management",
+          to: "/orders",
+          icon: OrderM,
+          activeIcon: OrderMWhite,
+        },
         // { label: "Category management", to: "/categories", icon: Products, activeIcon: ProductsWhite },
-        { label: "Ads and Banners", to: "/adds-banners", icon: Ads, activeIcon: AdsWhite },
-        { label: "Blog Management", to: "/blogs", icon: Coupon, activeIcon: CouponWhite },
-        { label: "User management", to: "/users", icon: UseraM, activeIcon: UseraMWhite },
+        {
+          label: "Ads and Banners",
+          to: "/adds-banners",
+          icon: Ads,
+          activeIcon: AdsWhite,
+        },
+        {
+          label: "Blog Management",
+          to: "/blogs",
+          icon: Coupon,
+          activeIcon: CouponWhite,
+        },
+        {
+          label: "User management",
+          to: "/users",
+          icon: UseraM,
+          activeIcon: UseraMWhite,
+        },
+        {
+          label: "Recipe",
+          to: "/recipe",
+          icon: recipe,
+          activeIcon: recipe,
+        },
       ],
     },
     {
       section: "HELP & SUPPORT",
       items: [
-        { label: "Enquiries", to: "/enquiry", icon: Enquiries, activeIcon: EnquiriesWhite },
-        { label: "Settings", to: "/settings", icon: Settings, activeIcon: SettingsWhite },
+        {
+          label: "Enquiries",
+          to: "/enquiry",
+          icon: Enquiries,
+          activeIcon: EnquiriesWhite,
+        },
+        {
+          label: "Settings",
+          to: "/settings",
+          icon: Settings,
+          activeIcon: SettingsWhite,
+        },
         {
           label: "Logout",
           to: "#", // Prevent navigation for logout
@@ -99,7 +146,9 @@ function Sidebar() {
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
           <div className="bg-white p-6 shadow-lg w-[360px] rounded-lg">
             <img src={logoutIcn} className="w-12 h-12" alt="" />
-            <h1 className="mt-6 text-base font-medium text-[#030300]">Confirm Logout?</h1>
+            <h1 className="mt-6 text-base font-medium text-[#030300]">
+              Confirm Logout?
+            </h1>
             <h2 className="font-normal text-sm text-[#818180] mt-4">
               Are you sure you want to logout?
             </h2>
@@ -141,7 +190,11 @@ function SidebarItem({ label, to, icon, activeIcon, isActive, onClick }) {
         }`}
       >
         <img src={isActive ? activeIcon : icon} alt={`${label} icon`} />
-        <span className={`text-sm font-medium ${isActive ? "text-white" : "text-[#B0B3B9]"}`}>
+        <span
+          className={`text-sm font-medium ${
+            isActive ? "text-white" : "text-[#B0B3B9]"
+          }`}
+        >
           {label}
         </span>
       </div>

@@ -1,122 +1,137 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import Api from '../../services/Api';
-
-
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import Api from "../../services/Api";
+import searchIcon from "@assets/layouts/search.svg";
+import addIco from "@assets/products/Add.svg";
+import BlogForm from "./BlogForm";
 
 function BlogPage() {
-    const [blogs, setBlogs] = useState([]);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedBlogId, setSelectedBlogId] = useState(null);
-    const navigate = useNavigate();
-  
-    useEffect(() => {
-      Api.get("blog/all")
-        .then((res) => {
-          if (res.status === 200 && res) {
-            
-            setBlogs(res.data.data);
-            console.log("Blogs fetched successfully:", res.data.data);
-          }
-        })
-        .catch((error) => {
-          console.error("Error fetching blogs:", error);
-        });
-    }, []);
-  
-    const openModal = (id) => {
-      setSelectedBlogId(id);
-      setIsModalOpen(true);
-    };
-  
-    const closeModal = () => {
-      setIsModalOpen(false);
-      setSelectedBlogId(null);
-    };
-  
-    const handleDelete = () => {
-        Api.delete(`blog/${selectedBlogId}`)
-          .then((res) => {
-            if (res.status === 200) {
-              setBlogs((prevBlogs) => prevBlogs.filter((blog) => blog.id !== selectedBlogId));
-            }
-          })
-          .catch((error) => {
-            console.error("Error deleting blog:", error);
-          })
-          .finally(closeModal);
-      };
-  
-    return (
-      <div className='max-w-[1200px] mx-auto'>
-        <div className="flex justify-between items-center border-b pb-6">
-         <div>
-            <h2 className=" font-semibold  text-[20px]">All Blogs</h2>
-            <div className='text-[16px] text-[#858585] font-medium mt-2'>See all blogs here</div>
-         </div>
-          <Link to="/blogPageForm">
-            <button className="px-6 py-3 bg-[#04A391] hover:bg-[#097468] duration-300 rounded-lg text-white text-sm font-semibold">
-              Create New
-            </button>
-          </Link>
-        </div>
-  
-        <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-    {blogs.map((blog) => (
-      <div
-        key={blog.id}
-        className="p-4 bg-[#F1F1F1] flex flex-col items-center w-full"
-      >
-        <img
-          src={blog.image}
-          className="w-full h-[146px] object-cover"
-          alt="Blog"
-        />
-        <h1 className="text-sm font-normal mt-6 h-[40px] text-center">
-          {blog.title}
-        </h1>
-  
-        {/* Buttons */}
-        <div className="flex justify-center items-center gap-4 mt-6 w-full">
+  const [showForm, setShowForm] = useState(false);
+  const [blogs, setBlogs] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedBlogId, setSelectedBlogId] = useState(null);
+  const navigate = useNavigate();
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  useEffect(() => {
+    Api.get("blog/all")
+      .then((res) => {
+        if (res.status === 200 && res) {
+          setBlogs(res.data.data);
+          console.log("Blogs fetched successfully:", res.data.data);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching blogs:", error);
+      });
+  }, []);
+
+  const openModal = (id) => {
+    setSelectedBlogId(id);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedBlogId(null);
+  };
+
+  const handleDelete = () => {
+    Api.delete(`blog/${selectedBlogId}`)
+      .then((res) => {
+        if (res.status === 200) {
+          setBlogs((prevBlogs) =>
+            prevBlogs.filter((blog) => blog.id !== selectedBlogId)
+          );
+        }
+      })
+      .catch((error) => {
+        console.error("Error deleting blog:", error);
+      })
+      .finally(closeModal);
+  };
+
+  if (showForm) {
+    return <BlogForm />;
+  }
+
+  return (
+    <div>
+      <div className="flex items-center justify-between">
+        <h1 className="leading-[22px] text-[20px] font-light ">All Blogs</h1>
+
+        <div className="flex gap-4">
           <button
-            onClick={() => navigate(`/blogPageForm/${blog.id}`)}
-            className="flex-1 py-3 border rounded-lg border-black hover:bg-black hover:text-white"
+            className="flex bg-[#BF6A02] hover:bg-[#965B13] duration-300 h-10 items-center rounded-lg text-white text-sm font-light px-4"
+            onClick={() => {
+              setShowForm(true);
+            }}
           >
-            View
-          </button>
-          <button
-            onClick={() => openModal(blog.id)}
-            className="flex-1 py-3 border rounded-lg bg-[#ED1C24]  hover:bg-[#AF2228] text-white"
-          >
-            Delete
+            <img src={addIco} className="mr-2 w-4 h-4" alt="" />
+            Add Blog
           </button>
         </div>
       </div>
-    ))}
-  </div>
-  
-  
-        {isModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-            <div className="bg-white p-6 w-[400px]">
-              {/* <img src={DltIcon} alt="Delete" /> */}
-              <h2 className="text-xl font-bold mt-6">Confirm Delete</h2>
-              <p className="text-base font-normal mt-4">
-                Are you sure you want to delete this item?
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white w-[361px] p-4 rounded-lg ">
+            <img src={deleteWarning} className="w-12 h-12" alt="" />
+            <p className="mt-4 text-[#030300] text-sm leading-4 font-medium">
+              Confirm delete item?
+            </p>
+            <p className="mt-2 text-[#818180] text-sm font-light leading-5">
+              {" "}
+              Are you sure you want to delete the category ? <br />
+              This action cannot be undone.
+            </p>
+            <div className="flex mt-8 gap-4">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="border-[#D5D5D5] hover:border-[#050505] duration-300 border w-full text-base font-light px-4 py-2 rounded-lg"
+              >
+                Cancel
+              </button>
+              <button className="bg-[#DA1818] hover:bg-[#DE5555] duration-300 text-white w-full text-base font-light px-4 py-2 rounded-lg">
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Category Table */}
+
+      <div className="bg-white min-h-[665px] p-4 mt-4">
+        <div className="grid grid-cols-4 gap-5">
+          {[1, 2, 3, 4, 5, 6].map((item, index) => (
+            <div className="p-4 bg-[#F8F8F8]">
+              <img className="w-full h-[146px]" src={searchIcon} alt="" />
+              <p className="mt-2 text-[12px] font-light text-[#929292]">
+                25/05/2025
               </p>
-              <div className="flex justify-center space-x-4 mt-8">
-                <button onClick={closeModal} className="px-10 py-[14px] border rounded-lg text-gray-600 hover:bg-gray-100">
-                  Cancel
+              <p className="mt-2 text-[14px] leading-5 font-light text-black">
+                A healthy smile Lorem impsum A healthy smile Lorem impsum
+              </p>
+              <div className="flex gap-4">
+                <button className="border border-[#B3B3B3] rounded-[8px] w-full py-2 mt-4">
+                  <p className="text-black text-[14px] font-light leading-5">
+                    View
+                  </p>
                 </button>
-                <button onClick={handleDelete} className="px-10 py-[14px] bg-[#ED1C24] text-white rounded-lg hover:bg-[#BD1D23]">
-                  Delete
+                <button className="bg-[#ED1C24] rounded-[8px] w-full py-2 mt-4">
+                  <p className="text-white text-[14px] font-light leading-5">
+                    Delete
+                  </p>
                 </button>
               </div>
             </div>
-          </div>
-        )}
+          ))}
+        </div>
       </div>
-    );
-  }
+    </div>
+  );
+}
 
-export default BlogPage
+export default BlogPage;
