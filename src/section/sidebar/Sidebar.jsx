@@ -72,6 +72,7 @@ function Sidebar() {
           icon: UseraM,
           activeIcon: UseraMWhite,
         },
+
         {
           label: "Recipe",
           to: "/recipe",

@@ -12,6 +12,8 @@ import OrderManagement from "./Pages/Order/Ordermanagement";
 import AdsAndBanners from "./Pages/AdsAndBanner/AdsAndBanner";
 import Recipe from "./Pages/RecipiePage/RecipePage";
 import AddRecipe from "./Pages/RecipiePage/AddRecipe";
+import UserManagement from "./Pages/UserManagement/UserManagement";
+import UserDetails from "./Pages/UserManagement/UserDetails";
 
 function App() {
   return (
@@ -30,6 +32,8 @@ function App() {
         <Route path="blogPageForm/:blogId" element={<BlogForm />} />
         <Route path="recipe" element={<Recipe />} />
         <Route path="addRecipe" element={<AddRecipe />} />
+        <Route path="users" element={<UserManagement />} />
+        <Route path="users/:id" element={<UserDetails />} />
       </Route>
     </Routes>
   );
