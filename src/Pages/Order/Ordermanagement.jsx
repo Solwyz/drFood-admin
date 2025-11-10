@@ -21,19 +21,26 @@ function OrderManagement() {
 
   const fetchOrderStats = async (token) => {
     try {
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+
       const [allRes, pendingRes, deliveredRes] = await Promise.all([
-        Api.get("order/all?page=1&limit=100000"),
-        Api.get("order/pending?page=1&limit=100000"),
-        Api.get("order/delivered?page=1&limit=100000"),
+        Api.get("order/all?page=1&limit=100000",  headers ),
+        Api.get("order/pending?page=1&limit=100000",  headers ),
+        Api.get("order/delivered?page=1&limit=100000",  headers ),
       ]);
 
-      console.log('Order stats responses:', { allRes: allRes.data, pendingRes: pendingRes.data, deliveredRes: deliveredRes.data });
+      console.log("Order stats responses:", {
+        allRes: allRes.data,
+        pendingRes: pendingRes.data,
+        deliveredRes: deliveredRes.data,
+      });
 
       setNewOrdersCount(allRes?.data?.data?.length || 0);
       setPendingCount(pendingRes?.data?.data?.length || 0);
       setDeliveredCount(deliveredRes?.data?.data?.length || 0);
     } catch (err) {
-      
       console.error("❌ Error fetching stats:", err);
     }
   };
@@ -45,6 +52,10 @@ function OrderManagement() {
     const token = localStorage.getItem("token");
 
     try {
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+
       let url;
       switch (tab) {
         case "Pending":
@@ -54,7 +65,7 @@ function OrderManagement() {
           url = "order/delivered";
           break;
         case "Cancelled":
-          url = "order/cancelled"; // Ensure lowercase
+          url = "order/cancelled";
           break;
         default:
           url = "order/all";
@@ -62,9 +73,9 @@ function OrderManagement() {
 
       console.log(`🔍 Fetching orders from: ${url}?page=1&limit=100000`);
 
-      const res = await Api.get(`${url}?page=1&limit=100000`);
+      const res = await Api.get(`${url}?page=1&limit=100000`,  headers );
 
-      console.log('new res', res.data.data)
+      console.log("new resssssssssssssssss", res);
 
       const allData = res?.data?.data || [];
       const reversedData = [...allData].reverse();
@@ -93,23 +104,35 @@ function OrderManagement() {
 
   return (
     <div className=" ">
-      <h1 className="text-xl leading-6 text-[#BF6A02] font-medium ">Order Management</h1>
+      <h1 className="text-xl leading-6 text-[#BF6A02] font-medium ">
+        Order Management
+      </h1>
 
       {/* Overview Cards */}
       <div className=" bg-white  mt-4 p-4  ">
-      <h1 className="text-base font-semibold leading-6">Overview</h1>
+        <h1 className="text-base font-semibold leading-6">Overview</h1>
         <div className="grid grid-cols-3 mt-2 gap-6">
           <div className="bg-[#EBF5FF] py-4 px-6 h-[110px]  border-l-[3px] border-[#5B6D7E]">
             <p className="text-base font-medium leading-[22px] ">New Orders</p>
-            <p className="text-[32px] font-semibold leading-10 mt-4">{newOrdersCount}</p>
+            <p className="text-[32px] font-semibold leading-10 mt-4">
+              {newOrdersCount}
+            </p>
           </div>
           <div className="bg-[#F6F4FF] py-4 px-6  h-[110px] border-l-[3px] border-[#7A729E]">
-            <p className="text-base font-medium leading-[22px] ">Pending Orders</p>
-            <p className="text-[32px] font-semibold leading-10 mt-4">{pendingCount}</p>
+            <p className="text-base font-medium leading-[22px] ">
+              Pending Orders
+            </p>
+            <p className="text-[32px] font-semibold leading-10 mt-4">
+              {pendingCount}
+            </p>
           </div>
           <div className="bg-[#FFECE6] py-4 px-6  h-[110px] border-l-[3px] border-[#A8918A]">
-            <p className="text-base font-medium leading-[22px] ">Delivered Orders</p>
-            <p className="text-[32px] font-semibold leading-10 mt-4">{deliveredCount}</p>
+            <p className="text-base font-medium leading-[22px] ">
+              Delivered Orders
+            </p>
+            <p className="text-[32px] font-semibold leading-10 mt-4">
+              {deliveredCount}
+            </p>
           </div>
         </div>
       </div>
@@ -134,7 +157,7 @@ function OrderManagement() {
             </button>
           ))}
         </div>
-        {/* Error */}
+
         {/* Orders Table */}
         <div className="overflow-x-auto mt-8 ">
           <table className="min-w-full text-sm text-left">
@@ -180,11 +203,9 @@ function OrderManagement() {
                       {o?.orderId ? `${o.orderId}` : "—"}
                     </td>
                     <td className="py-4 px-4">
-                      {/* {o?.product.name ?o.product.name: "—"} */}
                       {o?.product?.name ?? "—"}
-
                     </td>
-                    <td className="py-4 px-4">{o?.user.name ?? "N/A"}</td>
+                    <td className="py-4 px-4">{o?.user?.name ?? "N/A"}</td>
                     <td className="py-4 px-4">
                       {o?.orderDate
                         ? new Date(o.orderDate).toLocaleDateString()
@@ -202,6 +223,7 @@ function OrderManagement() {
             </tbody>
           </table>
         </div>
+
         {/* Pagination */}
         {totalPages > 1 && (
           <div className="flex justify-center items-center gap-2 mt-6">
