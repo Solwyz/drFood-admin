@@ -16,6 +16,9 @@ function AdsAndBanners() {
     const [selectedSection, setSelectedSection] = useState(""); // "Mobile" | "Desktop" | "Tab"
     const [selectedBannerName, setSelectedBannerName] = useState("");
     const [selectedCategoryId, setSelectedCategoryId] = useState(null);
+    const [formData, setFormData] = useState(null);
+    const [uploadedFile, setUploadedFile] = useState(null);
+
 
     // files to upload in the modal
     const [uploadFiles, setUploadFiles] = useState([]); // { file, name, size, progress, preview }
@@ -114,6 +117,7 @@ function AdsAndBanners() {
 
     // upload to server
     const handleUpload = async () => {
+        console.log('upplldddddd')
         if (!uploadFiles.length) {
             alert("Please select at least one image");
             return;
@@ -129,7 +133,7 @@ function AdsAndBanners() {
             const config = {
                 headers: {
                     "Content-Type": "multipart/form-data",
-                    Authorization: token ? `Bearer ${token}` : undefined,
+                    Authorization: `Bearer ${token}`,
                 },
                 onUploadProgress: (progressEvent) => {
                     if (!progressEvent) return;
@@ -140,18 +144,19 @@ function AdsAndBanners() {
                 },
             };
 
-            await Api.post(`banner/create?name=${encodeURIComponent(selectedBannerName)}`, formData, config);
 
-            // after successful upload:
-            // - close modal
-            // - set preview to first uploaded file (or you can use server response URL if provided)
-            const firstPreview = uploadFiles[0]?.preview ?? null;
-            if (firstPreview) {
-                // Make a new object URL for full page preview so we can manage its lifecycle separately
-                setPreviewUrl(firstPreview);
+            const firstFile = uploadFiles[0];
+            if (firstFile) {
+                // create a new safe object URL (separate from the uploadFiles array)
+                const newPreviewUrl = URL.createObjectURL(firstFile.file);
+                setPreviewUrl(newPreviewUrl);
             }
-            setUploadFiles([]);
+            setUploadFiles([]); // clear after setting new preview URL
             setModalOpen(false);
+
+            console.log('upldfilresdsdfdsffdf', firstFile)
+            setUploadedFile(firstFile.file)
+
             // keep the user on the same page with the preview visible
         } catch (err) {
             console.error("Upload failed:", err);
@@ -163,16 +168,89 @@ function AdsAndBanners() {
 
     // Save button behavior: depends on your API. For now we will simply log the action.
     // If you have a specific save endpoint (to persist which banner is active), call it here.
+    // const handleSave = async () => {
+    //     if (!previewUrl) {
+    //         alert("Please upload a banner before saving.");
+    //         return;
+    //     }
+
+    //     const formData = new FormData();
+    //     formData.append("imageUrls", uploadedFile)
+
+    //     try {
+
+    //         const response = await fetch(previewUrl);
+    //         // const blob = await response.blob();
+    //         // uploadFiles.forEach((f) => formData.append("imageUrls", f.file));
+    //         // formData.append("imageUrls", blob);
+    //         console.log('formData:', formData);
+    //         console.log('tknnn:', token);
+    //         // console.log('blooobb:', blob.type);
+    //         console.log('imageeee', uploadFiles);
+
+    //         const config = {
+    //             headers: {
+    //                 "Content-Type": "multipart/form-data",
+    //                 Authorization: `Bearer ${token}`
+    //             },
+    //         };
+
+    //         const res = await Api.post(`banner/create?name=${encodeURIComponent(selectedBannerName)}`, formData, config);
+
+
+    //         if (res.data && res.data.success) {
+    //             alert("Banner saved successfully!");
+    //         } else {
+    //             alert("Save failed. Please try again.");
+    //         }
+    //         console.log("Banner saved:", res);
+    //     } catch (err) {
+    //         console.error("Save failed:", err);
+    //         alert("Save failed. See console for details.");
+    //     }
+    // };
+
     const handleSave = async () => {
-        // Example: Api.post(`banner/save?categoryId=${selectedCategoryId}&name=${...}`)
-        console.log("Save clicked for", {
-            page: activePage,
-            section: selectedSection,
-            categoryId: selectedCategoryId,
-            previewUrl,
-        });
-        
+        if (!uploadedFile) {
+            alert("Please upload a banner before saving.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("images", uploadedFile); // ✅ use the uploaded image file
+
+        console.log('tokkkkn', token)
+        console.log('formdataaaaaz', formData);
+        console.log('upldfileeeee', uploadedFile);
+
+        try {
+            const config = {
+                
+                    "Content-Type": "multipart/form-data",
+                    Authorization: `Bearer ${token}`
+               
+            };
+
+            const res = await Api.post(
+                `banner/create?name=${encodeURIComponent(selectedBannerName)}`,
+                formData,
+                config
+            );
+
+            console.log('save res', res)
+
+            if (res && res.status === 200) {
+                alert("Banner saved successfully!");
+            } else {
+                alert("Save failed. Please try again.");
+            }
+        } catch (err) {
+            console.error("Save failed:", err);
+            alert("Save failed. See console for details.");
+        }
     };
+
+
 
     // "Change Photo" re-opens the modal so user can replace the image
     const handleChangePhoto = () => {
@@ -350,9 +428,9 @@ function AdsAndBanners() {
                         </div>
                     ) : (
                         // show large preview with "Change Photo" and "Save"
-                        <div className="bg-white rounded p-4">
-                            <div className="border rounded-lg p-4">
-                                <img src={previewUrl} alt="preview" className="w-full h-[200px] object-cover rounded" />
+                        <div className="bg-white  ">
+                            <div className=" ">
+                                <img src={previewUrl} alt="preview" className="w-full h-[512px] object-cover object-center rounded" />
                                 <div className="text-center mt-2">
                                     <button
                                         className="text-blue-600 underline text-sm"
