@@ -34,6 +34,7 @@ function App() {
         <Route path="recipe" element={<Recipe />} />
         <Route path="settings" element={<SettingsPage/>} />
         <Route path="addRecipe" element={<AddRecipe />} />
+     
         <Route path="users" element={<UserManagement />} />
         <Route path="users/:id" element={<UserDetails />} />
       </Route>
