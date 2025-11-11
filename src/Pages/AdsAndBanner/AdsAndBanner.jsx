@@ -19,6 +19,16 @@ function AdsAndBanners() {
     const [formData, setFormData] = useState(null);
     const [uploadedFile, setUploadedFile] = useState(null);
 
+    const [customAlert, setCustomAlert] = useState(null);
+
+    useEffect(() => {
+        if (customAlert) {
+            const timer = setTimeout(() => setCustomAlert(null), 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [customAlert]);
+
+
 
     // files to upload in the modal
     const [uploadFiles, setUploadFiles] = useState([]); // { file, name, size, progress, preview }
@@ -225,10 +235,10 @@ function AdsAndBanners() {
 
         try {
             const config = {
-                
-                    "Content-Type": "multipart/form-data",
-                    Authorization: `Bearer ${token}`
-               
+
+                "Content-Type": "multipart/form-data",
+                Authorization: `Bearer ${token}`
+
             };
 
             const res = await Api.post(
@@ -240,13 +250,30 @@ function AdsAndBanners() {
             console.log('save res', res)
 
             if (res && res.status === 200) {
-                alert("Banner saved successfully!");
+                setCustomAlert({
+                    type: "success",
+                    message: "Banner saved successfully!",
+                });
+
+                // ✅ Redirect back to first section after 2 seconds
+                setTimeout(() => {
+                    setActivePage("main");
+                    setSelectedSection("");
+                    setPreviewUrl(null);
+                    setUploadedFile(null);
+                }, 2000);
             } else {
-                alert("Save failed. Please try again.");
+                setCustomAlert({
+                    type: "error",
+                    message: "Save failed. Please try again.",
+                });
             }
         } catch (err) {
             console.error("Save failed:", err);
-            alert("Save failed. See console for details.");
+            setCustomAlert({
+                type: "error",
+                message: "Save failed. See console for details.",
+            });
         }
     };
 
@@ -549,6 +576,17 @@ function AdsAndBanners() {
                     </div>
                 </div>
             )}
+
+            {customAlert && (
+                <div
+                    className={`fixed bottom-6 right-6 px-6 py-3 rounded-lg justify-center shadow-lg text-white text-sm font-medium transition-all duration-500 ${customAlert.type === "success" ? "bg-green-600" : "bg-red-600"
+                        }`}
+                >
+                    {customAlert.message}
+                </div>
+            )}
+
+
         </div>
     );
 }

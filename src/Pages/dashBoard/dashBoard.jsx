@@ -43,16 +43,16 @@ const Dashboard = () => {
 
 
     useEffect(() => {
-        console.log('tokkknnn', token);
+ 
         const fetchOrderData = async () => {
             try {
                 const res = await Api.get("order/graphical"
                     , {
-                        
-                            'Authorization': `Bearer ${token}`
-                        
+
+                        'Authorization': `Bearer ${token}`
+
                     });
-                console.log("Order graph data response:", res);
+                
 
 
 
@@ -103,13 +103,14 @@ const Dashboard = () => {
     useEffect(() => {
         Api.get('order/sort/byDate'
             , {
-                headers: {
+                
                     Authorization: `Bearer ${token}`
-                }
+                
             })
             .then(response => {
+              
                 if (response && response.status === 200) {
-                    console.log('zzzz redspppppppppppppp', response.data);
+
                     setOverviewData(response.data);
                 } else {
                     console.error('Failed resppp', response);

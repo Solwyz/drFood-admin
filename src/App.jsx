@@ -14,6 +14,7 @@ import Recipe from "./Pages/RecipiePage/RecipePage";
 import AddRecipe from "./Pages/RecipiePage/AddRecipe";
 import UserManagement from "./Pages/UserManagement/UserManagement";
 import UserDetails from "./Pages/UserManagement/UserDetails";
+import SettingsPage from "./Pages/Settings/Settings";
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
         <Route path="blogPageForm" element={<BlogForm />} />
         <Route path="blogPageForm/:blogId" element={<BlogForm />} />
         <Route path="recipe" element={<Recipe />} />
+        <Route path="settings" element={<SettingsPage/>} />
         <Route path="addRecipe" element={<AddRecipe />} />
         <Route path="users" element={<UserManagement />} />
         <Route path="users/:id" element={<UserDetails />} />
