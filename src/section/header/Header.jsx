@@ -96,7 +96,7 @@ function Header() {
                 <li className="px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer" onClick={() => navigate('/settings')}>
                   Settings
                 </li>
-                <li className="px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer" onClick={() => navigate('/enquiries')}>
+                <li className="px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer" onClick={() => navigate('/enquiry')}>
                   Enquiries
                 </li>
               </ul>
