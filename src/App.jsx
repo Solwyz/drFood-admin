@@ -14,7 +14,11 @@ import Recipe from "./Pages/RecipiePage/RecipePage";
 import AddRecipe from "./Pages/RecipiePage/AddRecipe";
 import UserManagement from "./Pages/UserManagement/UserManagement";
 import UserDetails from "./Pages/UserManagement/UserDetails";
+<<<<<<< Updated upstream
 import SettingsPage from "./Pages/Settings/Settings";
+=======
+import RecipeCategory from "./Pages/RecipeCategory/RecipeCategory";
+>>>>>>> Stashed changes
 
 function App() {
   return (
@@ -24,19 +28,24 @@ function App() {
       <Route path="/" element={<Layout />}>
         <Route path="/" element={<Dashboard />} />
         <Route path="enquiry" element={<EnquiryPage />} />
-        <Route path="products" element={<ProductPage />} />
+        <Route path="products/:productId" element={<ProductPage />} />
         <Route path="orders" element={<OrderManagement />} />
         <Route path="adds-banners" element={<AdsAndBanners />} />
         <Route path="categories" element={<Categories />} />
         <Route path="blogs" element={<BlogPage />} />
         <Route path="blogPageForm" element={<BlogForm />} />
         <Route path="blogPageForm/:blogId" element={<BlogForm />} />
+<<<<<<< Updated upstream
         <Route path="recipe" element={<Recipe />} />
         <Route path="settings" element={<SettingsPage/>} />
+=======
+        <Route path="recipe/:categoryId" element={<Recipe />} />
+>>>>>>> Stashed changes
         <Route path="addRecipe" element={<AddRecipe />} />
      
         <Route path="users" element={<UserManagement />} />
         <Route path="users/:id" element={<UserDetails />} />
+        <Route path="recipeCategory" element={<RecipeCategory />} />
       </Route>
     </Routes>
   );

@@ -11,6 +11,7 @@ import Api from "../../Services/Api";
 import searchIcon from "@assets/layouts/search.svg";
 import arrowRight from "@assets/layouts/arrow_right.svg";
 import AddRecipe from "./AddRecipe";
+import { useParams } from "react-router-dom";
 
 function Recipe() {
   const [recipe, setRecipe] = useState([]);
@@ -23,16 +24,35 @@ function Recipe() {
   const [deleteId, setDeleteId] = useState(null);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("");
+  const [category, setCategory] = useState("");
+  const { categoryId } = useParams();
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
+    fetchCategory();
     fetchRecipe();
   }, [search, filter]);
 
   const fetchRecipe = () => {
-    Api.get("recipie/all").then((response) => {
+    Api.get(`recipe/byCategory/${categoryId}`, {
+      Authorization: `Bearer ${token}`,
+    }).then((response) => {
       if (response && response.status === 200) {
         console.log("recipes", response);
         setRecipe(response.data.data);
+      } else {
+        console.error("Failed to fetch recipe", response);
+      }
+    });
+  };
+  const fetchCategory = () => {
+    Api.get(`recipe/category/${categoryId}`, {
+      Authorization: `Bearer ${token}`,
+    }).then((response) => {
+      if (response && response.status === 200) {
+        console.log("cat", response);
+        setCategory(response.data.data.name);
+        console.log(category);
       } else {
         console.error("Failed to fetch recipe", response);
       }
@@ -136,7 +156,7 @@ function Recipe() {
             Recipe
           </h1>
           <img src={arrowRight} alt="" />
-          <h1 className="text-4 leading-[22px] font-light ">Breakfast</h1>
+          <h1 className="text-4 leading-[22px] font-light ">{category}</h1>
         </div>
         <div className="flex gap-4">
           <button
@@ -186,14 +206,18 @@ function Recipe() {
 
       <div className="bg-white min-h-[665px] p-4 mt-4">
         <div className="grid grid-cols-4 gap-5">
-          {[1, 2, 3, 4, 5, 6].map((item, index) => (
+          {recipe.map((item, index) => (
             <div className="p-4 bg-[#F8F8F8]">
-              <img className="w-full h-[146px]" src={searchIcon} alt="" />
+              <img
+                className="w-full h-[146px]"
+                src={item.imageUrls[0]}
+                alt=""
+              />
               <p className="mt-2 text-[12px] font-light text-[#929292]">
-                25/05/2025
+                {item.createdAt}
               </p>
               <p className="mt-2 text-[14px] leading-5 font-light text-black">
-                A healthy smile Lorem impsum A healthy smile Lorem impsum
+                {item.name}
               </p>
               <div className="flex gap-4">
                 <button className="border border-[#B3B3B3] rounded-[8px] w-full py-2 mt-4">

@@ -419,7 +419,7 @@ function UserManagement() {
         </div>
 
         {/* Modal */}
-        {modalOpen && (
+        {modalOpen && selectedUser && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40">
             <div className="bg-white p-8 rounded-lg w-[591px] relative shadow-lg">
               <button
@@ -433,10 +433,11 @@ function UserManagement() {
                 <img className="w-14 h-14 rounded-lg" src={userIcon} alt="" />
                 <div>
                   <h2 className="text-base leading-6 font-medium">
-                    Romeo Roshan
+                    {selectedUser.name}
                   </h2>
                   <p className="text-xs font-normal text-[#919191]">
-                    Joined on 17/10/2024
+                    Joined on{" "}
+                    {new Date(selectedUser.createdAt).toLocaleDateString()}
                   </p>
                 </div>
               </div>
@@ -448,13 +449,13 @@ function UserManagement() {
                     <span className="font-normal text-[#616161] mr-2">
                       Contact:
                     </span>
-                    7012070474
+                    {selectedUser.mobileNumber}
                   </div>
                   <div className="mt-3 flex">
                     <span className="font-normal text-[#616161] mr-2">
                       Address:
                     </span>
-                    {/* {selectedUser?.addresses?.find((addr) => addr.selected) ? (
+                    {selectedUser?.addresses?.find((addr) => addr.selected) ? (
                       <p className="w-[202px]">
                         {(() => {
                           const selectedAddress = selectedUser.addresses.find(
@@ -472,8 +473,7 @@ function UserManagement() {
                       <p className="w-[202px] text-gray-500">
                         No address selected
                       </p>
-                    )} */}
-                    Karimpil House Meenadom P. O Kottayam
+                    )}
                   </div>
                 </div>
                 <div>
@@ -481,13 +481,13 @@ function UserManagement() {
                     <span className="font-normal text-[#616161] mr-3">
                       City:
                     </span>{" "}
-                    Kazhakootam
+                    {selectedUser.city}
                   </div>
                   <div className="mt-3">
                     <span className="font-normal text-[#616161] mr-2">
                       State:
                     </span>{" "}
-                    Kearal
+                    {selectedUser.state}
                   </div>
                 </div>
               </div>
@@ -501,13 +501,13 @@ function UserManagement() {
                 </button>
                 <button
                   className={`px-6 h-12 font-normal text-sm w-full rounded-lg text-white ${
-                    "Active" === "Active"
+                    selectedUser.status === "Active"
                       ? "bg-[#C30000] hover:bg-red-700"
                       : "bg-[#C30000] hover:bg-red-700"
                   }`}
                   onClick={toggleBanStatus}
                 >
-                  {"Active" === "Active" ? "Ban User" : "Unban User"}
+                  {selectedUser.status === "Active" ? "Ban User" : "Unban User"}
                 </button>
               </div>
             </div>

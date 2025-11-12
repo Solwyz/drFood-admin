@@ -75,7 +75,7 @@ function Sidebar() {
 
         {
           label: "Recipe",
-          to: "/recipe",
+          to: "/recipeCategory",
           icon: recipe,
           activeIcon: recipe,
         },
@@ -134,7 +134,12 @@ function Sidebar() {
                 to={item.to}
                 icon={item.icon}
                 activeIcon={item.activeIcon}
-                isActive={location.pathname === item.to}
+                isActive={
+                  item.label === "Products"
+                    ? location.pathname.startsWith("/categories") ||
+                      location.pathname.startsWith("/products")
+                    : location.pathname === item.to
+                }
                 onClick={item.onClick}
               />
             ))}

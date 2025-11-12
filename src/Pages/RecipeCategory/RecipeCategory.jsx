@@ -18,7 +18,7 @@ import photo from "@assets/layouts/photo.svg";
 
 import { useNavigate } from "react-router-dom";
 
-function Categories() {
+function RecipeCategory() {
   const token = localStorage.getItem("token");
   const [allCategories, setAllCategories] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -38,7 +38,7 @@ function Categories() {
   }, [search, filter]);
 
   const fetchCategories = () => {
-    Api.get("category/all", {
+    Api.get("recipe/category/all", {
       Authorization: `Bearer ${token}`,
     })
       .then((response) => {
@@ -74,25 +74,25 @@ function Categories() {
     }
     setError("");
 
-    const formData = new FormData();
-    if (categoryImage) formData.append("image", categoryImage);
+    const token = localStorage.getItem("token");
+
+    const payload = {
+      name: newCategory,
+      createdAt: new Date().toISOString().split("T")[0],
+    };
 
     try {
-      const response = await Api.post(
-        `category/create?name=${newCategory}`,
-        formData,
-        {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        }
-      );
+      const response = await Api.post("recipe/category/add", payload, {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      });
 
       if (response.status === 200) {
-        console.log("Category added", response);
+        console.log("Category added:", response.data);
         closeForm();
         fetchCategories();
       } else {
-        console.error("Failed to add category", response);
+        console.error("Failed to add category:", response);
       }
     } catch (err) {
       console.error("Error:", err);
@@ -139,7 +139,7 @@ function Categories() {
   // ✅ Delete category
   const handleDeleteCategory = () => {
     if (!deleteId) return;
-    Api.delete(`category/${deleteId}`, {
+    Api.delete(`recipe/category/${deleteId}`, {
       Authorization: `Bearer ${token}`,
     })
       .then((response) => {
@@ -218,10 +218,9 @@ function Categories() {
               onSubmit={isEditing ? handleUpdateCategory : handleAddCategory}
             >
               <div className="w-full flex flex-col justify-center items-center">
-                <div>
+                {/* <div>
                   <p className="text-[14px] font-light">Add Product Image</p>
 
-                  {/* Drop Zone */}
                   <div
                     className="border mt-2 w-[182px] h-[182px] flex flex-col border-dashed border-[#C3C3C3] rounded-md px-[14px] pt-[14px] text-center cursor-pointer hover:border-[#BF6A02] transition"
                     onClick={() =>
@@ -270,7 +269,7 @@ function Categories() {
                       if (file) setCategoryImage(file);
                     }}
                   />
-                </div>
+                </div> */}
 
                 {categoryImage && (
                   <p
@@ -388,23 +387,21 @@ function Categories() {
             <thead className=" bg-[#F0F0F0] rounded-tl-lg rounded-tr-lg border-[#D9D9D9] text-black">
               <tr>
                 <th className="py-[14px] px-4 font-normal">Category name</th>
-                <th className="py-[14px] px-4 font-normal">No. of Products</th>
-                <th className="py-[14px] px-4 font-normal">Total quantity</th>
+                <th className="py-[14px] px-4 font-normal">No. of Articles</th>
+                <th className="py-[14px] px-4 font-normal">Created date</th>
                 <th className="py-[14px] px-4 font-normal">Action</th>
               </tr>
             </thead>
             <tbody>
               {categories.map((cat, index) => (
                 <tr
-                  onClick={() => navigate(`/products/${cat.id}`)}
+                  onClick={() => navigate(`/recipe/${cat.id}`)}
                   className="border-b border-[#F0F0F0] text-[#171717] font-medium text-sm leading-4 hover:bg-[#F8F3F1]"
                   key={index}
                 >
                   <td className="py-3 px-4 font-normal">{cat.name}</td>
-                  <td className="py-3 px-4 font-normal">
-                    {cat.numberOfProducts}
-                  </td>
-                  <td className="py-3 px-4 font-normal">{cat.totalQuantity}</td>
+                  <td className="py-3 px-4 font-normal">{cat.totalRecipes}</td>
+                  <td className="py-3 px-4 font-normal">{cat.createdAt}</td>
                   <td className="py-3 px-4 font-normal">
                     <div className="flex gap-[22px]">
                       <button
@@ -477,4 +474,4 @@ function Categories() {
   );
 }
 
-export default Categories;
+export default RecipeCategory;

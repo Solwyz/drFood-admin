@@ -10,7 +10,6 @@ import deletIco from "@assets/products/delete.svg";
 import deleteHover from "@assets/products/deleteHover.svg";
 import editIco from "@assets/products/edit.svg";
 import editHover from "@assets/products/editHover.svg";
-import deleteWarning from "@assets/products/warningModal.svg";
 import close from "@assets/products/close.svg";
 import closeHover from "@assets/products/closeHover.svg";
 import cancelIco from "@assets/products/cancel.svg";
@@ -23,6 +22,8 @@ import noOrder from "@assets/layouts/noOrder.png";
 import withReactContent from "sweetalert2-react-content";
 import Swal from "sweetalert2";
 import ProductAddForm from "./ProductAddForm";
+import { useParams } from "react-router-dom";
+import deleteWarning from "@assets/layouts/logoutIvon.svg";
 
 const ProductManagement = () => {
   const [products, setProducts] = useState([]);
@@ -38,18 +39,16 @@ const ProductManagement = () => {
   const [viewProduct, setViewProduct] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+  const { productId } = useParams();
 
   const mySwal = withReactContent(Swal);
 
   const fetchProducts = async () => {
     setLoading(true);
     console.log(token);
-    console.log(Api.get("product/all"));
     try {
-      const res = await Api.get(`product/all`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const res = await Api.get(`product/category/${productId}`, {
+        Authorization: `Bearer ${token}`,
       });
 
       console.log("✅ API Raw Response:", res);
@@ -67,12 +66,14 @@ const ProductManagement = () => {
   };
 
   useEffect(() => {
+    console.log(productId);
     fetchProducts();
   }, [page, search, filter]);
 
   const handleDelete = async () => {
+    console.log(deleteId);
     try {
-      const res = await Api.delete(`api/product/${deleteId}`, {
+      const res = await Api.delete(`product/${deleteId}`, {
         Authorization: `Bearer ${token}`,
       });
       if (res.status === 200) {
@@ -214,39 +215,41 @@ const ProductManagement = () => {
                 </tr>
               </thead>
               <tbody>
-                {products.map((prod) => (
-                  <tr
-                    onClick={() => setViewProduct(prod)}
-                    key={prod.id}
-                    className="border-b border-[#F2F2F2] text-[#171717] font-normal text-sm leading-4  hover:bg-[#F8F3F1]"
-                  >
-                    <td className="py-4 px-4 text-[#171717] font-normal text-sm">
-                      #{prod.id}
-                    </td>
-                    <td className="py-4 px-4 text-[#171717] font-normal text-sm">
-                      {prod.name}
-                    </td>
-                    <td className="py-4 px-4 text-[#171717] font-normal text-sm">
-                      ₹{prod.totalPrice}
-                    </td>
-                    <td className="py-4 px-4 text-[#171717] font-normal text-sm">
-                      {prod.stockQuantity}
-                    </td>
-                    <td className="py-4 px-4 text-[#171717] font-normal text-sm">
-                      {prod.stockQuantity > 9 ? (
-                        <span className="bg-[#E1FDD7] text-[#29860A] px-4 py-[7px] rounded-lg text-xs leading-4 font-semibold">
-                          In Stock
-                        </span>
-                      ) : (
-                        <span className="bg-[#FDD7D7] text-[#AC0202] px-4 py-[7px] rounded-lg text-xs leading-4 font-semibold">
-                          Out of Stock
-                        </span>
-                      )}
-                    </td>
-                    <td className="py-4 px-4">
-                      <div className="flex gap-[22px]">
-                        {/* View Button */}
-                        {/* <button
+                {products.map((prod) => {
+                  console.log("orddd", prod.id);
+                  return (
+                    <tr
+                      onClick={() => setViewProduct(prod)}
+                      key={prod.id}
+                      className="border-b border-[#F2F2F2] text-[#171717] font-normal text-sm leading-4  hover:bg-[#F8F3F1]"
+                    >
+                      <td className="py-4 px-4 text-[#171717] font-normal text-sm">
+                        #{prod.id}
+                      </td>
+                      <td className="py-4 px-4 text-[#171717] font-normal text-sm">
+                        {prod.name}
+                      </td>
+                      <td className="py-4 px-4 text-[#171717] font-normal text-sm">
+                        ₹{prod.totalPrice}
+                      </td>
+                      <td className="py-4 px-4 text-[#171717] font-normal text-sm">
+                        {prod.stockQuantity}
+                      </td>
+                      <td className="py-4 px-4 text-[#171717] font-normal text-sm">
+                        {prod.stockQuantity > 9 ? (
+                          <span className="bg-[#E1FDD7] text-[#29860A] px-4 py-[7px] rounded-lg text-xs leading-4 font-semibold">
+                            In Stock
+                          </span>
+                        ) : (
+                          <span className="bg-[#FDD7D7] text-[#AC0202] px-4 py-[7px] rounded-lg text-xs leading-4 font-semibold">
+                            Out of Stock
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="flex gap-[22px]">
+                          {/* View Button */}
+                          {/* <button
                           className="duration-300"
                           onClick={() => setViewProduct(prod)}
                           onMouseEnter={(e) =>
@@ -263,54 +266,58 @@ const ProductManagement = () => {
                           />
                         </button> */}
 
-                        {/* Delete Button */}
-                        <button
-                          className="duration-300"
-                          onClick={() => {
-                            setDeleteId(prod.id);
-                            setShowDeleteModal(true);
-                          }}
-                          onMouseEnter={(e) =>
-                            (e.currentTarget.querySelector("img").src =
-                              deleteHover)
-                          }
-                          onMouseLeave={(e) =>
-                            (e.currentTarget.querySelector("img").src =
-                              deletIco)
-                          }
-                        >
-                          <img
-                            src={deletIco}
-                            className="w-[26px] h-[26px]"
-                            alt="delete"
-                          />
-                        </button>
+                          {/* Delete Button */}
+                          <button
+                            className="duration-300"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setDeleteId(prod.id);
+                              console.log(deleteId);
+                              setShowDeleteModal(true);
+                            }}
+                            onMouseEnter={(e) =>
+                              (e.currentTarget.querySelector("img").src =
+                                deleteHover)
+                            }
+                            onMouseLeave={(e) =>
+                              (e.currentTarget.querySelector("img").src =
+                                deletIco)
+                            }
+                          >
+                            <img
+                              src={deletIco}
+                              className="w-[26px] h-[26px]"
+                              alt="delete"
+                            />
+                          </button>
 
-                        {/* Edit Button */}
-                        <button
-                          className="duration-300"
-                          onClick={() => {
-                            setEditProduct(prod);
-                            setShowForm(true);
-                          }}
-                          onMouseEnter={(e) =>
-                            (e.currentTarget.querySelector("img").src =
-                              editHover)
-                          }
-                          onMouseLeave={(e) =>
-                            (e.currentTarget.querySelector("img").src = editIco)
-                          }
-                        >
-                          <img
-                            src={editIco}
-                            className="w-[26px] h-[26px]"
-                            alt="edit"
-                          />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                          {/* Edit Button */}
+                          <button
+                            className="duration-300"
+                            onClick={() => {
+                              setEditProduct(prod);
+                              setShowForm(true);
+                            }}
+                            onMouseEnter={(e) =>
+                              (e.currentTarget.querySelector("img").src =
+                                editHover)
+                            }
+                            onMouseLeave={(e) =>
+                              (e.currentTarget.querySelector("img").src =
+                                editIco)
+                            }
+                          >
+                            <img
+                              src={editIco}
+                              className="w-[26px] h-[26px]"
+                              alt="edit"
+                            />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -372,7 +379,7 @@ const ProductManagement = () => {
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40">
           <div className="bg-white p-6  rounded-lg ">
             <div className="flex justify-between items-center text-center">
-              <h1 className="font-medium text-base  leading-4">
+              <h1 className="font-regular text-base  leading-4">
                 Product details
               </h1>
               <button
@@ -388,42 +395,46 @@ const ProductManagement = () => {
                 <img src={close} alt="" />
               </button>
             </div>
-            <div className="flex mt-6 gap-8">
+            <div className="flex mt-6 gap-4">
               <div>
                 <img
-                  src={viewProduct.imageUrls}
+                  src={viewProduct.imageUrls[0]}
                   className="w-[187px] h-[192px] object-cover rounded-lg"
                 />
               </div>{" "}
               <div className="flex flex-col justify-between">
-                <h2 className="text-base font-medium leading-4 text-[#050710]">
-                  {viewProduct.name}
-                </h2>
-                <p className="mt-2 text-[#717171] w-[337px] text-justify text-sm leading-5 font-normal">
-                  {viewProduct.description}
-                </p>
-                <div className="mt-8 space-y-3">
-                  <div className="flex justify-between text-sm leading-4">
-                    <span className="text-[#A2A2A2] font-medium">
-                      ProductId:
+                <div>
+                  <h2 className="text-base font-regular leading-4 text-[#050710]">
+                    {viewProduct.name}
+                  </h2>
+                  <p className="mt-2 text-[#717171] w-[337px] text-justify text-sm leading-5 font-light">
+                    {viewProduct.description}
+                  </p>
+                </div>
+                <div className="space-y-4 text-sm leading-4">
+                  <div className="flex gap-[40px]">
+                    <span className="text-[#A2A2A2] font-regular w-[75px]">
+                      Product ID:
                     </span>
-                    <span className="text-[#050710] w-[250px] text-end font-medium">
+                    <span className="text-[#050710] font-regular">
                       #{viewProduct.id}
                     </span>
                   </div>
 
-                  <div className="flex justify-between text-sm leading-4">
-                    <span className="text-[#A2A2A2] font-medium">
+                  <div className="flex gap-[40px]">
+                    <span className="text-[#A2A2A2] font-regular w-[75px]">
                       Category:
                     </span>
-                    <span className="text-[#050710] font-medium">
-                      {viewProduct.category}
+                    <span className="text-[#050710] font-regular">
+                      {viewProduct.category?.name}
                     </span>
                   </div>
 
-                  <div className="flex justify-between text-sm leading-4">
-                    <span className="text-[#A2A2A2] font-medium">Price:</span>
-                    <span className="text-[#050710] font-medium">
+                  <div className="flex gap-[40px]">
+                    <span className="text-[#A2A2A2] font-regular w-[75px]">
+                      Price:
+                    </span>
+                    <span className="text-[#050710] font-regular">
                       ₹{viewProduct.totalPrice}
                     </span>
                   </div>
