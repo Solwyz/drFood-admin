@@ -39,6 +39,8 @@ const ProductManagement = () => {
   const [viewProduct, setViewProduct] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+  const [categoy, setCategory] = useState("");
+
   const { productId } = useParams();
 
   const mySwal = withReactContent(Swal);
@@ -65,8 +67,25 @@ const ProductManagement = () => {
     }
   };
 
+  const fetchCategory = async () => {
+    setLoading(true);
+    console.log(token);
+    try {
+      const res = await Api.get(`category/${productId}`, {
+        Authorization: `Bearer ${token}`,
+      });
+
+      console.log("✅ API Raw Response:", res);
+
+      setCategory(res.data.data.name);
+    } catch (err) {
+      console.log("❌ Server responded with:", err.response?.data);
+    }
+  };
+
   useEffect(() => {
     console.log(productId);
+    fetchCategory();
     fetchProducts();
   }, [page, search, filter]);
 
@@ -130,9 +149,13 @@ const ProductManagement = () => {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <h1 className="text-xl leading-6 font-normal text-[#2C2B2B]">
-          Product Management
-        </h1>
+        <div className="flex">
+          <h1 className="text-4 leading-[22px] font-light text-[#717171]">
+            Products
+          </h1>
+          <img src={arrowRight} alt="" />
+          <h1 className="text-4 leading-[22px] font-light ">{categoy}</h1>
+        </div>
         <div className="flex gap-4">
           {/* <button
             onClick={handleImport}
@@ -233,10 +256,10 @@ const ProductManagement = () => {
                         ₹{prod.totalPrice}
                       </td>
                       <td className="py-4 px-4 text-[#171717] font-normal text-sm">
-                        {prod.stockQuantity}
+                        {prod.stock}
                       </td>
                       <td className="py-4 px-4 text-[#171717] font-normal text-sm">
-                        {prod.stockQuantity > 9 ? (
+                        {prod.stock > 9 ? (
                           <span className="bg-[#E1FDD7] text-[#29860A] px-4 py-[7px] rounded-lg text-xs leading-4 font-semibold">
                             In Stock
                           </span>
@@ -294,7 +317,8 @@ const ProductManagement = () => {
                           {/* Edit Button */}
                           <button
                             className="duration-300"
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.stopPropagation();
                               setEditProduct(prod);
                               setShowForm(true);
                             }}

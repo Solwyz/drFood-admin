@@ -16,10 +16,8 @@ function UserManagement() {
   const [modalOpen, setModalOpen] = useState(false);
   const [overviewData, setOverviewData] = useState(null);
 
-  // Tabs
+  // Tabs and filters
   const [activeTab, setActiveTab] = useState("New");
-
-  // Filters
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
 
@@ -28,33 +26,30 @@ function UserManagement() {
   const usersPerPage = 100;
 
   useEffect(() => {
-    Api.get("order/sort/byDate", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }).then((response) => {
-      if (response && response.status === 200) {
-        console.log("zzzz redspp", response.data);
-        setOverviewData(response.data);
-      } else {
-        console.error("Failed resppp", response);
+    Api.get("order/sort/byDate", { Authorization: `Bearer ${token}` }).then(
+      (response) => {
+        if (response && response.status === 200) {
+          setOverviewData(response.data);
+        } else {
+          setOverviewData(null);
+        }
       }
-    });
-  }, []);
+    );
+  }, [token]);
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [token]);
 
   const fetchUsers = async () => {
-    console.log(token);
     setLoading(true);
     setError(null);
     try {
       const response = await Api.get("user/allUser", {
         Authorization: `Bearer ${token}`,
       });
-      console.log("ee", response.data.data);
+
+      // Add status from banned flag, and sort by create date desc
       const dataWithStatus = response.data.data
         .map((u) => ({
           ...u,
@@ -64,11 +59,8 @@ function UserManagement() {
           (a, b) =>
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
-
-      console.log("Fetched users:", dataWithStatus);
       setUsers(dataWithStatus);
     } catch (err) {
-      console.error("Error fetching users:", err);
       setError("Failed to load users");
     } finally {
       setLoading(false);
@@ -82,24 +74,22 @@ function UserManagement() {
 
   const toggleBanStatus = async () => {
     try {
+      if (!selectedUser) return;
       const isCurrentlyBanned = selectedUser.status === "Banned";
-
       const endpoint = isCurrentlyBanned
-        ? `api/user/unban/${selectedUser.id}`
-        : `api/user/ban/${selectedUser.id}`;
-
-      await Api.put(endpoint);
-
+        ? `user/unban/${selectedUser.id}`
+        : `user/ban/${selectedUser.id}`;
+      await Api.put(endpoint, {
+        Authorization: `Bearer ${token}`,
+      });
       const newStatus = isCurrentlyBanned ? "Active" : "Banned";
-
-      setUsers((prevUsers) =>
-        prevUsers.map((u) =>
+      setUsers((prev) =>
+        prev.map((u) =>
           u.id === selectedUser.id
             ? { ...u, status: newStatus, banned: !isCurrentlyBanned }
             : u
         )
       );
-
       setSelectedUser({
         ...selectedUser,
         status: newStatus,
@@ -110,50 +100,41 @@ function UserManagement() {
     }
   };
 
-  // // Counts
-  // const totalAll = users.length;
-  // // const totalNew = users.filter(
-  // //   (u) =>
-  // //     new Date(u.createdAt) >= new Date(Date.now() - 10 * 24 * 60 * 60 * 1000)
-  // // ).length;
-
-  // const totalNew = users.filter((u) => {
-  //   const isNew =
-  //     new Date(u.createdAt) >= new Date(Date.now() - 10 * 24 * 60 * 60 * 1000);
-
-  //   const matchSearch = u.name
-  //     ?.toLowerCase()
-  //     .includes(searchTerm.toLowerCase());
-
-  //   return isNew && matchSearch;
-  // }).length;
-
-  // const totalBanned = users.filter((u) => u.status === "Banned").length;
-
-  // // Apply Filters & Tabs
-  // const filteredUsers = users.filter((user) => {
-  //   const matchSearch = user.name
-  //     ?.toLowerCase()
-  //     .includes(searchTerm.toLowerCase());
-
-  //   let matchTab = true;
-  //   if (activeTab === "New") {
-  //     matchTab =
-  //       new Date(user.createdAt) >=
-  //       new Date(Date.now() - 10 * 24 * 60 * 60 * 1000);
-  //   } else if (activeTab === "Banned") {
-  //     matchTab = user.status === "Banned";
-  //   }
-
-  //   const matchStatus = statusFilter ? user.status === statusFilter : true;
-
-  //   return matchSearch && matchStatus && matchTab;
-  // });
-
-  // Base filtered users (search applied)
+  // Search users by name (extendable to other fields)
   const searchedUsers = users.filter((user) =>
     user.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Tab filtering
+  const filteredUsers = searchedUsers.filter((user) => {
+    if (activeTab === "New") {
+      return (
+        new Date(user.createdAt) >=
+        new Date(Date.now() - 10 * 24 * 60 * 60 * 1000)
+      );
+    } else if (activeTab === "Banned") {
+      return user.status === "Banned";
+    } else {
+      // 'All' tab
+      return true;
+    }
+  });
+
+  // Apply optional status filter
+  const finalFiltered = statusFilter
+    ? filteredUsers.filter((u) => u.status === statusFilter)
+    : filteredUsers;
+
+  // Pagination calculation
+  const totalPages = Math.ceil(finalFiltered.length / usersPerPage);
+  const paginatedUsers = finalFiltered.slice(
+    (currentPage - 1) * usersPerPage,
+    currentPage * usersPerPage
+  );
+
+  const goToPrevPage = () => currentPage > 1 && setCurrentPage(currentPage - 1);
+  const goToNextPage = () =>
+    currentPage < totalPages && setCurrentPage(currentPage + 1);
 
   // Counts
   const totalAll = searchedUsers.length;
@@ -163,81 +144,52 @@ function UserManagement() {
   ).length;
   const totalBanned = searchedUsers.filter((u) => u.status === "Banned").length;
 
-  // Apply Tabs
-  const filteredUsers = searchedUsers.filter((user) => {
-    if (activeTab === "New") {
-      return (
-        new Date(user.createdAt) >=
-        new Date(Date.now() - 10 * 24 * 60 * 60 * 1000)
-      );
-    } else if (activeTab === "Banned") {
-      return user.status === "Banned";
-    }
-    return true; // "All" tab
-  });
-
-  // Pagination logic
-  const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
-  const paginatedUsers = filteredUsers.slice(
-    (currentPage - 1) * usersPerPage,
-    currentPage * usersPerPage
-  );
-
-  const goToPrevPage = () => {
-    if (currentPage > 1) setCurrentPage((prev) => prev - 1);
-  };
-
-  const goToNextPage = () => {
-    if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
-  };
-
   return (
     <div>
       <h1 className="text-xl font-medium text-[#2C2B2B]">User Management</h1>
-      <div className=" bg-white rounded-[8px]  mt-4 p-4  ">
-        <h1 className="text-base font-semibold leading-6">Overview</h1>
+      <div className="bg-white rounded-[8px] mt-4 p-4">
+        <h2 className="text-base font-semibold leading-6">Overview</h2>
         <div className="grid grid-cols-4 mt-2 gap-4">
-          <div className="bg-[#EBF5FF] py-4 px-6 h-[110px]  border-l-[3px] border-[#5B6D7E]">
-            <p className="text-base font-medium leading-[22px] ">
-              Daily Orders
-            </p>
+          <div className="bg-[#EBF5FF] py-4 px-6 h-[110px] border-l-[3px] border-[#5B6D7E]">
+            <p className="text-base font-medium leading-[22px]">Daily Orders</p>
             <p className="text-[32px] font-semibold leading-10 mt-4">
-              {overviewData?.dailyOrders}
+              {overviewData?.dailyOrders || 0}
             </p>
           </div>
-          <div className="bg-[#F4EDFF] py-4 px-6  h-[110px] border-l-[3px] border-[#AA99C4]">
-            <p className="text-base font-medium leading-[22px] ">
+          <div className="bg-[#F4EDFF] py-4 px-6 h-[110px] border-l-[3px] border-[#AA99C4]">
+            <p className="text-base font-medium leading-[22px]">
               Monthly Orders
             </p>
             <p className="text-[32px] font-semibold leading-10 mt-4">
-              {overviewData?.monthlyOrders}
+              {overviewData?.monthlyOrders || 0}
             </p>
           </div>
-          <div className="bg-[#E8FFF9] py-4 px-6  h-[110px] border-l-[3px] border-[#83AEA3]">
-            <p className="text-base font-medium leading-[22px] ">
+          <div className="bg-[#E8FFF9] py-4 px-6 h-[110px] border-l-[3px] border-[#83AEA3]">
+            <p className="text-base font-medium leading-[22px]">
               Todays Revenue
             </p>
             <p className="text-[32px] font-semibold leading-10 mt-4">
-              {overviewData?.totalRevenue}
+              {overviewData?.totalRevenue || 0}
             </p>
           </div>
-          <div className="bg-[#FFF7EC] py-4 px-6  h-[110px] border-l-[3px] border-[#C0AC90]">
-            <p className="text-base font-medium leading-[22px] ">
+          <div className="bg-[#FFF7EC] py-4 px-6 h-[110px] border-l-[3px] border-[#C0AC90]">
+            <p className="text-base font-medium leading-[22px]">
               Active Rewards
             </p>
             <p className="text-[32px] font-semibold leading-10 mt-4">
-              {overviewData?.activeCoupons}
+              {overviewData?.activeCoupons || 0}
             </p>
           </div>
         </div>
       </div>
+
+      {/* Filters */}
       <div className="bg-white rounded-t-[8px] min-h-[665px] p-4 mt-6">
-        {/* Search + Filter Controls */}
         <div className="flex items-center">
-          <h1 className="text-center text-base font-semibold leading-4 ">
+          <h2 className="text-center text-base font-semibold leading-4 ">
             Registered Users
-          </h1>
-          <div className="relative ml-[56px] w-[584px] h-10 ">
+          </h2>
+          <div className="relative ml-[56px] w-[584px] h-10">
             <img
               src={searchIcon}
               alt="search"
@@ -245,10 +197,10 @@ function UserManagement() {
             />
             <input
               type="text"
-              placeholder="Search Product , Product ID"
+              placeholder="Search Product, Product ID or Phone"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="border border-[#D5D5D5] pl-10 p-[10px] placeholder:text-[#C1C1C1] focus:outline-none duration-300 hover:border-black  font-normal text-sm leading-5 rounded-lg w-full h-10"
+              className="border border-[#D5D5D5] pl-10 p-[10px] placeholder:text-[#C1C1C1] focus:outline-none duration-300 hover:border-black font-normal text-sm leading-5 rounded-lg w-full h-10"
             />
           </div>
 
@@ -261,7 +213,7 @@ function UserManagement() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="appearance-none pl-9 text-[#2C2B2B] font-normal  pr-3 border w-full hover:border-black duration-300  border-[#D5D5D5] h-10 rounded-lg text-sm focus:outline-none"
+              className="appearance-none pl-9 text-[#2C2B2B] font-normal pr-3 border w-full hover:border-black duration-300 border-[#D5D5D5] h-10 rounded-lg text-sm focus:outline-none"
             >
               <option value="">Filter</option>
               <option value="Active">Active</option>
@@ -270,8 +222,8 @@ function UserManagement() {
           </div>
         </div>
 
+        {/* Tabs */}
         <div className="flex gap-6 mt-8">
-          {" "}
           {[
             { key: "New", label: "New", count: totalNew },
             { key: "All", label: "All", count: totalAll },
@@ -291,7 +243,6 @@ function UserManagement() {
                     : "text-[#9B9B9B] hover:text-[#BF6A02]"
                 }`}
               >
-                {" "}
                 {tab.label}{" "}
                 <span
                   className={`ml-1 ${
@@ -300,20 +251,17 @@ function UserManagement() {
                       : "text-[#9B9B9B] group-hover:text-[#BF6A02]"
                   }`}
                 >
-                  {" "}
-                  ({tab.count}){" "}
-                </span>{" "}
+                  ({tab.count})
+                </span>
               </button>
             );
-          })}{" "}
+          })}
         </div>
 
-        {/* Table */}
-
+        {/* User Table */}
         <div className="overflow-hidden rounded-t-[8px] mt-[24px]">
           <table className="min-w-full text-sm text-left border-collapse border-0">
             <thead className="font-semibold text-[#252525] bg-[#F0F0F0]">
-              {" "}
               <tr>
                 <th className="py-4 px-4">Sl.no</th>
                 <th className="py-4 px-4">User Name</th>
@@ -323,7 +271,6 @@ function UserManagement() {
                 <th className="py-4 px-4">Status</th>
               </tr>
             </thead>
-
             <tbody>
               {loading ? (
                 <tr>
@@ -340,15 +287,15 @@ function UserManagement() {
                     {error}
                   </td>
                 </tr>
-              ) : users.length > 0 ? (
-                users.map((user, index) => (
+              ) : paginatedUsers.length > 0 ? (
+                paginatedUsers.map((user, i) => (
                   <tr
                     key={user.id}
-                    className="border-b border-[#F0F0F0] text-[#2C2B2B] font-medium text-sm leading-4 hover:bg-[#F8F8F8]"
+                    className="border-b border-[#F0F0F0] text-[#2C2B2B] font-medium text-sm leading-4 hover:bg-[#F8F8F8] cursor-pointer"
                     onClick={() => handleRowClick(user)}
                   >
                     <td className="py-5 px-4">
-                      {((currentPage - 1) * usersPerPage + index + 1)
+                      {((currentPage - 1) * usersPerPage + i + 1)
                         .toString()
                         .padStart(2, "0")}
                     </td>
@@ -377,50 +324,43 @@ function UserManagement() {
             </tbody>
           </table>
 
-          {/* Pagination */}
-          {
-            !(
-              loading ||
-              (error && (
-                <div className="flex justify-center items-center gap-2 mt-6">
-                  <button
-                    onClick={goToPrevPage}
-                    disabled={currentPage === 1}
-                    className="disabled:opacity-50"
-                  >
-                    <img src={arrowLeft} alt="Prev" className="h-6 w-6" />
-                  </button>
-
-                  {[...Array(totalPages || 1)].map((_, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setCurrentPage(i + 1)}
-                      className={`px-3 py-1 rounded-lg ${
-                        currentPage === i + 1
-                          ? "bg-[#FFFAF4] text-[#BF6A02] font-medium"
-                          : "text-[#696A70] hover:bg-gray-100"
-                      }`}
-                    >
-                      {i + 1}
-                    </button>
-                  ))}
-
-                  <button
-                    onClick={goToNextPage}
-                    disabled={currentPage === totalPages || totalPages === 0}
-                    className="disabled:opacity-50"
-                  >
-                    <img src={arrowRight} alt="Next" className="h-6 w-6" />
-                  </button>
-                </div>
-              ))
-            )
-          }
+          {/* Pagination Controls */}
+          {!loading && !error && (
+            <div className="flex justify-center items-center gap-2 mt-6">
+              <button
+                onClick={goToPrevPage}
+                disabled={currentPage === 1}
+                className="disabled:opacity-50"
+              >
+                <img src={arrowLeft} alt="Prev" className="h-6 w-6" />
+              </button>
+              {[...Array(totalPages || 1)].map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrentPage(i + 1)}
+                  className={`px-3 py-1 rounded-lg ${
+                    currentPage === i + 1
+                      ? "bg-[#FFFAF4] text-[#BF6A02] font-medium"
+                      : "text-[#696A70] hover:bg-gray-100"
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+              <button
+                onClick={goToNextPage}
+                disabled={currentPage === totalPages || totalPages === 0}
+                className="disabled:opacity-50"
+              >
+                <img src={arrowRight} alt="Next" className="h-6 w-6" />
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Modal */}
         {modalOpen && selectedUser && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
             <div className="bg-white p-8 rounded-lg w-[591px] relative shadow-lg">
               <button
                 onClick={() => setModalOpen(false)}
@@ -458,15 +398,14 @@ function UserManagement() {
                     {selectedUser?.addresses?.find((addr) => addr.selected) ? (
                       <p className="w-[202px]">
                         {(() => {
-                          const selectedAddress = selectedUser.addresses.find(
-                            (addr) => addr.selected
+                          const addr = selectedUser.addresses.find(
+                            (a) => a.selected
                           );
-                          return `${selectedAddress.houseName}, 
-        ${selectedAddress.streetAddress}
-        ${selectedAddress.addressLine}
-        ${selectedAddress.landMark}
-        ${selectedAddress.town}
-        `;
+                          return `${addr.houseName}, 
+${addr.streetAddress}
+${addr.addressLine}
+${addr.landMark}
+${addr.town}`;
                         })()}
                       </p>
                     ) : (

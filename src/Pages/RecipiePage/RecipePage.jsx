@@ -12,6 +12,7 @@ import searchIcon from "@assets/layouts/search.svg";
 import arrowRight from "@assets/layouts/arrow_right.svg";
 import AddRecipe from "./AddRecipe";
 import { useParams } from "react-router-dom";
+import deleteWarning from "@assets/layouts/logoutIvon.svg";
 
 function Recipe() {
   const [recipe, setRecipe] = useState([]);
@@ -103,7 +104,9 @@ function Recipe() {
   // ✅ Delete recipe
   const handleDeleteRecipe = () => {
     if (!deleteId) return;
-    Api.delete(`recipe/${deleteId}`)
+    Api.delete(`recipe/${deleteId}`, {
+      Authorization: `Bearer ${token}`,
+    })
       .then((response) => {
         if (response && response.status === 200) {
           setShowDeleteModal(false);
@@ -192,7 +195,7 @@ function Recipe() {
                 Cancel
               </button>
               <button
-                onClick={handleDeleteCategory}
+                onClick={handleDeleteRecipe}
                 className="bg-[#DA1818] hover:bg-[#DE5555] duration-300 text-white w-full text-base font-light px-4 py-2 rounded-lg"
               >
                 Delete
@@ -225,7 +228,10 @@ function Recipe() {
                     View
                   </p>
                 </button>
-                <button className="bg-[#ED1C24] rounded-[8px] w-full py-2 mt-4">
+                <button
+                  onClick={() => openDeleteModal(item.id)}
+                  className="bg-[#ED1C24] rounded-[8px] w-full py-2 mt-4"
+                >
                   <p className="text-white text-[14px] font-light leading-5">
                     Delete
                   </p>
