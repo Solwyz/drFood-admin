@@ -13,6 +13,7 @@ import Api from "../../Services/Api";
 
 function AdsAndBanners() {
     const [activePage, setActivePage] = useState("main"); // main | homeBanner | categoryPoster | homeAdsPoster
+    const [activeId, setActiveId] = useState(null);
     const [selectedSection, setSelectedSection] = useState(""); // "Mobile" | "Desktop" | "Tab"
     const [selectedBannerName, setSelectedBannerName] = useState("");
     const [selectedCategoryId, setSelectedCategoryId] = useState(null);
@@ -232,6 +233,7 @@ function AdsAndBanners() {
         console.log('tokkkkn', token)
         console.log('formdataaaaaz', formData);
         console.log('upldfileeeee', uploadedFile);
+        console.log('active id', activeId)
 
         try {
             const config = {
@@ -242,7 +244,7 @@ function AdsAndBanners() {
             };
 
             const res = await Api.post(
-                `banner/create?name=${encodeURIComponent(selectedBannerName)}`,
+                `banner/create?name=${encodeURIComponent(selectedBannerName)}&bannerCategoryId=${activeId}`,
                 formData,
                 config
             );
@@ -340,19 +342,20 @@ function AdsAndBanners() {
             {activePage === "main" && (
                 <div className="bg-white flex gap-4 p-4 ">
                     {[
-                        { title: "Home Banner", key: "homeBanner" },
-                        { title: "Categories Poster", key: "categoryPoster" },
-                        { title: "Home Ads Posters", key: "homeAdsPoster" },
+                        { title: "Home Banner", id:"1", key: "homeBanner" },
+                        { title: "Categories Poster", id:"3", key: "categoryPoster" },
+                        { title: "Home Ads Posters", id:"2", key: "homeAdsPoster" },
                     ].map((item) => (
                         <button
                             key={item.key}
                             onClick={() => {
                                 setActivePage(item.key);
+                                setActiveId(item.id);
                                 setSelectedSection("");
                                 setSelectedBannerName("");
                                 setPreviewUrl(null);
                             }}
-                            className="flex-1 bg-[#F8F8F8] text-[#787878] hover:text-[#383838] hover:bg-[#FFF2E5] font-medium text-base leading-5 rounded-lg p-4 text-left transition flex items-center justify-between"
+                            className="flex-1 bg-[#F8F8F8] text-[#787878] hover:text-[#383838] hover:bg-[#FCEFDF] font-medium text-base leading-5 rounded-lg p-4 text-left transition flex items-center justify-between"
                         >
                             {item.title}
                             <span className="text-[24px]">›</span>

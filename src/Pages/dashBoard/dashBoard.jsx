@@ -37,13 +37,35 @@ const CustomTooltip = ({ active, payload, label }) => {
 const Dashboard = () => {
     const [orderData, setOrderData] = useState([]);
     const [overviewData, setOverviewData] = useState(null);
+    const [userall, setUserall] = useState(null)
+    const [newUserall, setNewUserall] = useState(null)
 
     const token = localStorage.getItem("token");
 
+    const [products, setProducts] = useState([]);
 
 
     useEffect(() => {
- 
+        const fetchProducts = async () => {
+            try {
+                const res = await Api.get("product/bestSeller",
+                    {
+                        'Authorization': `Bearer ${token}`
+                    });
+
+                if (res.data.data && Array.isArray(res.data.data)) {
+                    setProducts(res.data.data);
+                }
+            } catch (error) {
+                console.error("Error fetching top selling products:", error);
+            }
+        };
+
+        fetchProducts();
+    }, []);
+
+    useEffect(() => {
+
         const fetchOrderData = async () => {
             try {
                 const res = await Api.get("order/graphical"
@@ -52,7 +74,7 @@ const Dashboard = () => {
                         'Authorization': `Bearer ${token}`
 
                     });
-                
+
 
 
 
@@ -103,12 +125,12 @@ const Dashboard = () => {
     useEffect(() => {
         Api.get('order/sort/byDate'
             , {
-                
-                    Authorization: `Bearer ${token}`
-                
+
+                Authorization: `Bearer ${token}`
+
             })
             .then(response => {
-              
+
                 if (response && response.status === 200) {
 
                     setOverviewData(response.data);
@@ -118,8 +140,37 @@ const Dashboard = () => {
             })
     }, [])
 
+    useEffect(() => {
+        Api.get('user/allUser',
+            {
+                Authorization: `Bearer ${token}`
+            }
+        )
+            .then(res => {
+                console.log("fghj", res.data.data.length)
+                if (res && res.status === 200) {
+                    setUserall(res.data.data);
+                } else {
+                    console.error('Failed res', res)
+                }
+            })
+
+        Api.get('user/newUser', {
+            Authorization: `Bearer ${token}`
+        })
+         .then(res => {
+                console.log("tedrfghjk", res.data.data)
+                if (res && res.status === 200) {
+                    setNewUserall(res.data.data);
+                } else {
+                    console.error('Failed res', res)
+                }
+            })
+
+    }, [])
+
     return (
-        <div className=" ">
+        <div className="capitalize">
             <h1 className="text-xl leading-6 text-[#BF6A02] font-medium ">
                 Dashboard
             </h1>
@@ -168,20 +219,7 @@ const Dashboard = () => {
                         <h2 className="text-base font-medium leading-[22px] ">
                             Order Statistics
                         </h2>
-                        <div className="flex items-center gap-4">
-                            <div className="flex items-center">
-                                <span className="rounded-full bg-[#6390BA] w-3 h-3 mr-2"></span>
-                                <span className="font-medium text-base leading-[22px]">
-                                    Completed
-                                </span>
-                            </div>
-                            <div className="flex items-center">
-                                <span className="rounded-full bg-[#D4EBFE] w-3 h-3 mr-2"></span>
-                                <span className="font-medium text-base leading-[22px]">
-                                    Return
-                                </span>
-                            </div>
-                        </div>
+
                     </div>
 
                     <ResponsiveContainer width="100%" height={200}>
@@ -254,25 +292,69 @@ const Dashboard = () => {
                             />
                         </BarChart>
                     </ResponsiveContainer>
+                    <div className="flex items-center justify-end gap-4">
+                        <div className="flex items-center">
+                            <span className="rounded-full bg-[#6390BA] w-3 h-3 mr-2"></span>
+                            <span className="font-medium text-base leading-[22px]">
+                                Completed
+                            </span>
+                        </div>
+                        <div className="flex items-center">
+                            <span className="rounded-full bg-[#D4EBFE] w-3 h-3 mr-2"></span>
+                            <span className="font-medium text-base leading-[22px]">
+                                Return
+                            </span>
+                        </div>
+                    </div>
                 </div>
 
                 <div className="space-y-4">
                     <div className="bg-white text-center rounded-lg w-[176px] h-[140px] p-4">
-                        <h2 className="text-lg text-center flex font-semibold mb-4 text-gray-700">
+                        <h2 className="text-base text-center flex font-medium mb-4 text-gray-700">
                             <img src={totalUserIco} className="mr-2" alt="" /> Total Users
                         </h2>
-                        <div className="text-3xl font-bold text-[#4A739C]">00</div>
+                        <div className="text-3xl font-semibold text-[#4A739C]">{userall?.length}</div>
                     </div>
                     <div className="bg-white  text-center rounded-lg w-[176px] h-[140px] p-4">
-
+                        <h2 className="text-base text-center flex font-medium mb-4 text-gray-700">
+                            <img src={totalUserIco} className="mr-2" alt="" /> New Users
+                        </h2>
+                        <div className="text-3xl font-semibold text-[#4A739C]">{newUserall?.usersToday}</div>
                     </div>
                 </div>
 
-                <div className="bg-white w-[356px] rounded-lg p-4">
-                    <h2 className="text-base font-medium leading-[22px] ">
+                <div className="bg-white w-[356px] rounded-lg p-4 shadow-sm">
+                    <h2 className="text-base font-medium leading-[22px] mb-3">
                         Top selling products
                     </h2>
+
+                    {products.length > 0 ? (
+                        // ✅ Scroll container added here
+                        <div className="max-h-[220px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent pr-1">
+                            <ul className="space-y-3">
+                                {products.map((item, index) => (
+                                    <li
+                                        key={index}
+                                        className="flex justify-between items-center text-sm font-medium text-[#0F0F0F]"
+                                    >
+                                        <div className="flex items-center gap-2">
+                                            <img
+                                                src={item.imageUrls || ""}
+                                                alt={item.name}
+                                                className="w-6 h-6 rounded-md object-cover"
+                                            />
+                                            <span>{item.name}</span>
+                                        </div>
+                                        <span className="text-[#00A94F]">{item.totalSold || 0}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    ) : (
+                        <p className="text-gray-400 text-sm mt-4">No products available</p>
+                    )}
                 </div>
+
                 <div></div>
             </div>
 
