@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const apiUrl =
-  import.meta.env.VITE_API_URL || "http://192.168.29.214:8001/DrFood";
+  import.meta.env.VITE_API_URL || "http://62.72.12.228:8001/DrFood";
 
 const Api = {
   get: async (url, header) => {

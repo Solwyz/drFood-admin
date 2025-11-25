@@ -2,7 +2,7 @@ import "./App.css";
 import { Routes, Route } from "react-router-dom";
 import Layout from "./Layout";
 import Login from "./auth/Login";
-import EnquiryPage from "./pages/enquiryPage/EnquiryPage";
+import EnquiryPage from "./Pages/enquiryPage/EnquiryPage";
 import ProductPage from "./Pages/ProductPage/ProductPage";
 import BlogPage from "./pages/blogPage/BlogPage";
 import BlogForm from "./pages/blogPage/BlogForm";
