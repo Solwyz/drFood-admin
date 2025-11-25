@@ -158,17 +158,24 @@ function EnquiriesPage() {
         </div>
 
         {/* Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse text-sm rounded-t-lg">
+        <div className="overflow-x-auto w-full">
+          <table className="w-full border-collapse text-sm ">
             <thead>
-              <tr className="bg-[#F0F0F0] text-[#000000]  text-sm font-light text-left">
-                {columns.map((col) => (
-                  <th key={col} className="py-[14px] px-6 ">
+              <tr className="bg-[#F0F0F0] text-[#000000] text-sm font-extralight text-left">
+                {columns.map((col, i) => (
+                  <th
+                    key={col}
+                    className={`py-[14px] px-6 text-sm font-medium 
+          ${i === 0 ? "rounded-tl-lg" : ""} 
+          ${i === columns.length - 1 ? "rounded-tr-lg" : ""}
+        `}
+                  >
                     {col}
                   </th>
                 ))}
               </tr>
             </thead>
+
             <tbody>
               {enquiries.length > 0 ? (
                 enquiries.map((item, index) => (
@@ -244,8 +251,8 @@ function EnquiriesPage() {
               key={num}
               onClick={() => setPage(num)}
               className={`px-3 py-1 rounded-md ${page === num
-                ? "bg-[#b87019] text-white"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                ? "bg-[#F9F9FB] text-[#304BA0]"
+                : " text-gray-600 hover:bg-[#F9F9FB]"
                 }`}
             >
               {num}
