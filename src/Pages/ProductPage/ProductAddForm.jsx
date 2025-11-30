@@ -9,7 +9,7 @@ import addIco from "@assets/products/Add.svg";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 
-function ProductAddForm({ product, onClose, onSuccess }) {
+function ProductAddForm({ product, onClose, onSuccess, categoryId }) {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -196,7 +196,7 @@ function ProductAddForm({ product, onClose, onSuccess }) {
     // Build query parameters
     const query = new URLSearchParams();
 
-    query.append("productCategoryId", formData.productCategoryId);
+    query.append("productCategoryId", categoryId);
     query.append("name", formData.name);
     query.append("description", formData.description);
     query.append("packageingType", formData.packageingType);
@@ -220,6 +220,7 @@ function ProductAddForm({ product, onClose, onSuccess }) {
     secondaryFiles.forEach((file) => payload.append("images", file));
 
     try {
+      console.log("PRODUCT ID", product?.id);
       let res;
 
       if (product?.id) {
@@ -233,6 +234,7 @@ function ProductAddForm({ product, onClose, onSuccess }) {
           }
         );
       } else {
+        console.log("Creating");
         // ✅ ADD new product
         res = await Api.post(`product/add?${query.toString()}`, payload, {
           "Content-Type": "multipart/form-data",

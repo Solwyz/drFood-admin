@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import arrowRight from "@assets/layouts/arrow_right.svg";
 import SaveIcon from "@assets/products/save.svg";
 import addIco from "@assets/products/Add.svg";
@@ -13,7 +13,13 @@ import upload from "@assets/layouts/upload.svg";
 import Api from "../../Services/Api";
 import { toast } from "react-toastify";
 
-const AddRecipe = () => {
+const AddRecipe = ({
+  onClose,
+  categoryId,
+  category,
+  recipe, // <-- editRecipe object
+  onSuccess,
+}) => {
   const [showImageModal, setImageModal] = useState(false);
   const [uploadFiles, setUploadFiles] = useState([]);
   const [progress, setProgress] = useState({});
@@ -22,17 +28,30 @@ const AddRecipe = () => {
   const [seoTags, setSeoTags] = useState(["", "", "", ""]);
   const [ingredients, setIngredients] = useState([""]);
   const [steps, setSteps] = useState([{ title: "", instructions: [""] }]);
+  // IMAGE STATES
+  const [existingMainImage, setExistingMainImage] = useState(""); // URL from server
+
+  const [errors, setErrors] = useState({});
 
   const [formData, setFormData] = useState({
-    title: "",
+    name: "",
     difficulty: "",
-    estimatedTime: "",
+    time: "",
     description: "",
-    calories: "",
+    calorie: "",
     protein: "",
-    fats: "",
-    carbohydrates: "",
-    fiber: "",
+    fat: "",
+    carbohydrate: "",
+    fibre: "",
+    ingredients: [""],
+    tags: [""],
+    seoTags: [""],
+    instructions: [
+      {
+        heading: "",
+        steps: [""],
+      },
+    ],
   });
 
   // ✅ Update form fields
@@ -42,6 +61,79 @@ const AddRecipe = () => {
       [e.target.name]: e.target.value,
     }));
   };
+
+  const validateForm = () => {
+    let err = {};
+    if (!formData.name.trim()) err.name = "Recipe name is required";
+    if (!formData.description.trim())
+      err.description = "Description is required";
+    if (!formData.difficulty.trim()) err.difficulty = "Select a difficulty";
+    if (!formData.time.trim()) err.time = "Estimated time is required";
+    if (tags.filter((t) => t.trim()).length < 4) err.tags = "Complete tags";
+    if (ingredients.filter((i) => i.trim()).length === 0)
+      err.ingredients = "At least one ingredient required";
+    if (!mainImage && !existingMainImage) {
+      err.image = "Please upload an image";
+    } else if (mainImage) {
+      const allowedTypes = ["image/jpeg", "image/png"];
+      if (!allowedTypes.includes(mainImage.type)) {
+        err.image = "Only JPEG or PNG images are allowed";
+      }
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      if (mainImage.size > maxSize) {
+        err.image = "Image size must be less than 5MB";
+      }
+    }
+    if (!seoTags.some((tag) => tag.trim() !== "")) {
+      err.seoTags = "At least one SEO tag is required";
+    }
+    // if (validateInstructions()) {
+    //   err.instructions = "Complete instructions";
+    // }
+    setErrors(err);
+    return Object.keys(err).length === 0;
+  };
+  const validateInstructions = () => {
+    return !formData.instructions.some((step) => {
+      // Defensive null/undefined checks
+      if (!step || typeof step !== "object") return false;
+      const title = step.title || "";
+      const instr = Array.isArray(step.instructions) ? step.instructions : [];
+
+      return title.trim() !== "" && instr.some((i) => i.trim() !== "");
+    });
+  };
+
+  useEffect(() => {
+    if (recipe) {
+      setFormData({
+        name: recipe.name || "",
+        difficulty: recipe.difficulty || "",
+        time: recipe.time || "",
+        description: recipe.description || "",
+        calorie: recipe.calorie || "",
+        protein: recipe.protein || "",
+        fat: recipe.fat || "",
+        carbohydrate: recipe.carbohydrate || "",
+        fibre: recipe.fibre || "",
+        ingredients: recipe.ingredients?.length ? recipe.ingredients : [""],
+        tags: recipe.tags?.length ? recipe.tags : [""],
+        seoTags: recipe.seoTags?.length ? recipe.seoTags : [""],
+        instructions: recipe.instructions?.length
+          ? recipe.instructions
+          : [{ heading: "", steps: [""] }],
+      });
+      setTags(recipe.tags);
+      setSeoTags(recipe.seoTags);
+      setIngredients(recipe.ingredients);
+      setExistingMainImage(recipe.imageUrls[0] || "");
+      const mappedSteps = recipe.instructions?.map((s) => ({
+        title: s.heading || "",
+        instructions: s.steps || [""],
+      })) || [{ title: "", instructions: [""] }];
+      setSteps(mappedSteps);
+    }
+  }, [recipe]);
 
   // // ✅ Dynamic Tag Handlers
   // const handleAddTag = (e) => {
@@ -86,20 +178,21 @@ const AddRecipe = () => {
   // ✅ Submit Handler with API
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!formData.title.trim()) return toast.error("Title is required");
-    if (!formData.description.trim())
-      return toast.error("Description is required");
+    if (!validateForm()) {
+      toast.error("Please fix form errors before submitting.");
+      return;
+    }
 
     const token = localStorage.getItem("token");
     if (!token) return toast.error("No token found, please login again");
+    console.log("Category", categoryId);
 
     try {
       const payload = new FormData();
-      payload.append("RecipeCategoryId", 1); // hardcoded or dynamic
-      payload.append("name", formData.title);
-      payload.append("difficulty", formData.title);
-      payload.append("time", formData.estimatedTime);
+      payload.append("categoryId", categoryId); // hardcoded or dynamic
+      payload.append("name", formData.name);
+      payload.append("difficulty", formData.difficulty);
+      payload.append("time", formData.time);
       payload.append("description", formData.description);
 
       // Join tags into a single string with spaces or commas if backend expects so
@@ -109,9 +202,18 @@ const AddRecipe = () => {
       //     : `#${tag.trim()}`;
       //   payload.append(`tags[${i}]`, formattedTag);
       // });
-      payload.append("tag", tags.join(" "));
-      payload.append("tags", seoTags.join(" "));
-      payload.append("steps", steps);
+      payload.append("tags", tags);
+      payload.append("seoTags", seoTags);
+      steps.forEach((step) => {
+        if (step.title.trim()) {
+          payload.append("instructionHeadings", step.title.trim());
+        }
+
+        const joined = step.instructions.filter((i) => i.trim()).join("|");
+
+        payload.append("instructionSteps", joined);
+      });
+
       // steps.forEach((step, stepIndex) => {
       //   payload.append(`steps[${stepIndex}][title]`, step.title);
       //   step.instructions.forEach((instruction, instrIndex) => {
@@ -122,41 +224,57 @@ const AddRecipe = () => {
       //   });
       // });
 
-      payload.append("calorie", formData.calories);
+      payload.append("calorie", formData.calorie);
       payload.append("protein", formData.protein);
-      payload.append("fat", formData.fats);
-      payload.append("carbohydrate", formData.carbohydrates);
-      payload.append("fibre", formData.fiber);
+      payload.append("fat", formData.fat);
+      payload.append("carbohydrate", formData.carbohydrate);
+      payload.append("fibre", formData.fibre);
 
       // Ingredients array
-      ingredients.forEach((item) => payload.append("ingredients", item));
+      ingredients.forEach((ing) => {
+        if (ing.trim()) payload.append("ingredients", ing.trim());
+      });
 
       // You can also support steps later:
       // steps.forEach((step) => payload.append("steps", step));
 
-      if (mainImage) payload.append("images", mainImage);
+      if (mainImage) payload.append("imageFiles", mainImage);
+      let res;
+      if (recipe) {
+        console.log("IF");
+        res = await Api.put(`recipe/${recipe.id}`, payload, {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        });
+      } else {
+        console.log("ELSE");
 
-      const res = await Api.post(`recipe/add?RecipeCategoryId=1`, payload, {
-        "Content-Type": "multipart/form-data",
-        Authorization: `Bearer ${token}`,
-      });
+        res = await Api.post(`recipe/create?`, payload, {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        });
+      }
+      console.log(res);
 
       if (res.status === 200) {
         toast.success("Recipe added successfully!");
         setFormData({
-          title: "",
+          name: "",
           difficulty: "",
-          estimatedTime: "",
+          time: "",
           description: "",
-          calories: "",
+          calorie: "",
           protein: "",
-          fats: "",
-          carbohydrates: "",
-          fiber: "",
+          fat: "",
+          carbohydrate: "",
+          fibre: "",
         });
         setTags([""]);
         setIngredients([""]);
         setMainImage(null);
+        console.log(steps);
+        onSuccess?.();
+        onClose?.();
       } else {
         toast.error("Failed to add recipe");
       }
@@ -197,6 +315,34 @@ const AddRecipe = () => {
     setSteps(newSteps);
   };
 
+  const handleFileSelect = (file) => {
+    setUploadFiles([file]);
+
+    const fileName = file.name;
+    setProgress({ [fileName]: 0 });
+
+    const interval = setInterval(() => {
+      setProgress((p) => {
+        const newProgress = (p[fileName] || 0) + 20;
+
+        if (newProgress >= 100) {
+          clearInterval(interval);
+
+          // Set main image
+          setMainImage(file);
+          setExistingMainImage("");
+
+          // Close modal after slight delay
+        }
+
+        return {
+          ...p,
+          [fileName]: Math.min(newProgress, 100),
+        };
+      });
+    }, 250);
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -206,10 +352,12 @@ const AddRecipe = () => {
           </h1>
           <img src={arrowRight} alt="" />
           <h1 className="text-4 leading-[22px] font-light text-[#717171]">
-            Breakfast
+            {category}
           </h1>
           <img src={arrowRight} alt="" />
-          <h1 className="text-4 leading-[22px] font-light ">Breakfast</h1>
+          <h1 className="text-4 leading-[22px] font-light ">
+            {recipe ? recipe.name : "Create"}
+          </h1>
         </div>
         <div className="flex gap-4">
           <button
@@ -235,37 +383,50 @@ const AddRecipe = () => {
                 </label>
                 <input
                   type="text"
-                  name="title"
-                  value={formData.title}
+                  name="name"
+                  value={formData.name}
                   onChange={handleInputChange}
                   className="w-full rounded-lg p-4 font-normal text-sm border focus:outline-[#363636] border-[#C3C3C3] bg-white mt-1 h-12"
                 />
+                {errors.name && (
+                  <span className="text-red-600 text-[12px]">
+                    {errors.name}
+                  </span>
+                )}
               </div>
 
               {/* Difficulty + Time */}
               <div className="flex gap-4">
-                <div className="w-[166px] mt-4 relative">
-                  <label className="font-normal text-sm text-[#050710] leading-4">
-                    Difficulty
-                  </label>
+                <div>
+                  <div className="w-[166px] mt-4 relative">
+                    <label className="font-normal text-sm text-[#050710] leading-4">
+                      Difficulty
+                    </label>
 
-                  <select
-                    className="w-full appearance-none rounded-lg px-4 pr-10 text-[#2B2B2B] font-normal text-sm border focus:outline-[#363636] border-[#C3C3C3] bg-white mt-1 h-12"
-                    name="difficulty"
-                    onChange={handleInputChange}
-                    value={formData.difficulty}
-                  >
-                    <option value="Easy">Easy</option>
-                    <option value="Medium">Medium</option>
-                    <option value="Hard">Hard</option>
-                  </select>
+                    <select
+                      className="w-full appearance-none rounded-lg px-4 pr-10 text-[#2B2B2B] font-normal text-sm border focus:outline-[#363636] border-[#C3C3C3] bg-white mt-1 h-12"
+                      name="difficulty"
+                      onChange={handleInputChange}
+                      value={formData.difficulty}
+                    >
+                      <option value="">Select</option>
+                      <option value="Easy">Easy</option>
+                      <option value="Medium">Medium</option>
+                      <option value="Hard">Hard</option>
+                    </select>
 
-                  <img
-                    className="w-6 h-6 absolute right-3 top-[68%] -translate-y-1/2 text-[#BF6A02] pointer-events-none"
-                    src={arrowDown}
-                    alt=""
-                  />
-                  {/* Custom dropdown arrow */}
+                    <img
+                      className="w-6 h-6 absolute right-3 top-[68%] -translate-y-1/2 text-[#BF6A02] pointer-events-none"
+                      src={arrowDown}
+                      alt=""
+                    />
+                    {/* Custom dropdown arrow */}
+                  </div>
+                  {errors.difficulty && (
+                    <span className="text-red-600 text-[12px]">
+                      {errors.difficulty}
+                    </span>
+                  )}
                 </div>
 
                 <div className="w-[166px] mt-4">
@@ -274,12 +435,17 @@ const AddRecipe = () => {
                   </label>
                   <input
                     type="text"
-                    name="estimatedTime"
-                    value={formData.estimatedTime}
+                    name="time"
+                    value={formData.time}
                     onChange={handleInputChange}
                     placeholder="20 mins"
                     className="w-full rounded-lg p-4 font-normal text-sm border focus:outline-[#363636] border-[#C3C3C3] bg-white mt-1 h-12"
                   />
+                  {errors.time && (
+                    <span className="text-red-600 text-[12px]">
+                      {errors.time}
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -295,6 +461,11 @@ const AddRecipe = () => {
                   onChange={handleInputChange}
                   className="w-full rounded-lg p-4 resize-none font-normal text-sm border focus:outline-[#363636] border-[#C3C3C3] bg-white mt-1 h-[200px]"
                 />
+                {errors.description && (
+                  <span className="text-red-600 text-[12px]">
+                    {errors.description}
+                  </span>
+                )}
               </div>
 
               {/* Tags */}
@@ -315,6 +486,9 @@ const AddRecipe = () => {
                   </div>
                 ))}
               </div>
+              {errors.tags && (
+                <span className="text-red-600 text-[12px]">{errors.tags}</span>
+              )}
 
               {/* Ingredients */}
               <p className="text-[14px] leading-5 mt-4">Ingredients</p>
@@ -354,6 +528,11 @@ const AddRecipe = () => {
                   </button>
                 </div>
               </div>
+              {errors.ingredients && (
+                <span className="text-red-600 text-[12px]">
+                  {errors.ingredients}
+                </span>
+              )}
 
               {/* Nutritional Information */}
               <p className="text-[14px] leading-5 mt-4">
@@ -367,8 +546,8 @@ const AddRecipe = () => {
                     </label>
                     <input
                       type="text"
-                      name="calories"
-                      value={formData.calories}
+                      name="calorie"
+                      value={formData.calorie}
                       onChange={handleInputChange}
                       placeholder="Enter Calories"
                       className="w-full rounded-lg p-4 font-normal text-sm border focus:outline-[#363636] border-[#C3C3C3] bg-white mt-1 h-12"
@@ -396,8 +575,8 @@ const AddRecipe = () => {
                     </label>
                     <input
                       type="text"
-                      name="fats"
-                      value={formData.fats}
+                      name="fat"
+                      value={formData.fat}
                       onChange={handleInputChange}
                       placeholder="Enter Fats"
                       className="w-full rounded-lg p-4 font-normal text-sm border focus:outline-[#363636] border-[#C3C3C3] bg-white mt-1 h-12"
@@ -409,8 +588,8 @@ const AddRecipe = () => {
                     </label>
                     <input
                       type="text"
-                      name="carbohydrates"
-                      value={formData.carbohydrates}
+                      name="carbohydrate"
+                      value={formData.carbohydrate}
                       onChange={handleInputChange}
                       placeholder="Enter Carbohydrates"
                       className="w-full rounded-lg p-4 font-normal text-sm border focus:outline-[#363636] border-[#C3C3C3] bg-white mt-1 h-12"
@@ -425,8 +604,8 @@ const AddRecipe = () => {
                     </label>
                     <input
                       type="text"
-                      name="fiber"
-                      value={formData.fiber}
+                      name="fibre"
+                      value={formData.fibre}
                       onChange={handleInputChange}
                       placeholder="Enter Fiber"
                       className="w-full rounded-lg p-4 font-normal text-sm border focus:outline-[#363636] border-[#C3C3C3] bg-white mt-1 h-12"
@@ -440,21 +619,39 @@ const AddRecipe = () => {
             {/* Image Section */}
             <div>
               <div className="w-[368px] h-[238px] bg-[#EEEEEE] flex items-center justify-center overflow-hidden rounded-lg">
-                {mainImage ? (
+                {/* SHOW IMAGE FROM API WHEN EDITING */}
+                {existingMainImage && !mainImage && (
+                  <img
+                    src={existingMainImage}
+                    alt="existing"
+                    className="w-full h-full object-cover"
+                  />
+                )}
+
+                {/* SHOW NEW SELECTED IMAGE */}
+                {mainImage && (
                   <img
                     src={URL.createObjectURL(mainImage)}
                     alt="preview"
-                    className="object-cover w-full h-full"
+                    className="w-full h-full object-cover"
                   />
-                ) : (
+                )}
+
+                {!existingMainImage && !mainImage && (
                   <p className="text-sm text-gray-500">No image selected</p>
                 )}
               </div>
+              {errors.image && (
+                <span className="text-red-600 text-[12px]">{errors.image}</span>
+              )}
+
               <p
                 onClick={() => setImageModal(true)}
                 className="text-center text-[#0539BC] text-[12px] font-light leading-4 mt-6 cursor-pointer"
               >
-                Change Photo
+                {mainImage || existingMainImage
+                  ? "Change Photo"
+                  : "Upload Photo"}
               </p>
             </div>
           </div>
@@ -495,19 +692,21 @@ const AddRecipe = () => {
                   />
 
                   {step.instructions.map((instruction, instrIndex) => (
-                    <textarea
-                      key={instrIndex}
-                      placeholder={`Instruction ${instrIndex + 1}`}
-                      value={instruction}
-                      onChange={(e) =>
-                        handleInstructionChange(
-                          stepIndex,
-                          instrIndex,
-                          e.target.value
-                        )
-                      }
-                      className="w-full mt-2 rounded-lg p-4 resize-none font-normal text-sm border focus:outline-[#363636] border-[#C3C3C3] bg-white h-[80px] placeholder:text-[12px]"
-                    />
+                    <div key={instrIndex}>
+                      <textarea
+                        key={instrIndex}
+                        placeholder={`Instruction ${instrIndex + 1}`}
+                        value={instruction}
+                        onChange={(e) =>
+                          handleInstructionChange(
+                            stepIndex,
+                            instrIndex,
+                            e.target.value
+                          )
+                        }
+                        className="w-full mt-2 rounded-lg p-4 resize-none font-normal text-sm border focus:outline-[#363636] border-[#C3C3C3] bg-white h-[80px] placeholder:text-[12px]"
+                      />
+                    </div>
                   ))}
 
                   <button
@@ -528,6 +727,11 @@ const AddRecipe = () => {
               ))}
             </div>
           </div>
+          {errors.instructions && (
+            <span className="text-red-600 text-[12px]">
+              {errors.instructions}
+            </span>
+          )}
 
           <div className="mt-4">
             <p className="font-light text-[14px]">SEO Tags</p>
@@ -547,6 +751,11 @@ const AddRecipe = () => {
                 </div>
               ))}
             </div>
+            {errors.seoTags && (
+              <span className="text-red-600  text-[12px]">
+                {errors.seoTags}
+              </span>
+            )}
           </div>
         </form>
       </div>
@@ -556,25 +765,28 @@ const AddRecipe = () => {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg w-[600px] p-6 relative shadow-lg">
             <h2 className="text-lg font-semibold mb-4 text-[#050710]">
-              Add Recipe Image
+              Select Recipe Image
             </h2>
 
-            {/* Drop zone */}
+            {/* Drop Zone */}
             <div
-              className="border flex justify-between items-center border-dashed border-[#C3C3C3] rounded-md px-4 py-[9px] text-center cursor-pointer hover:border-[#BF6A02]"
+              className="border flex justify-between items-center border-dashed border-[#C3C3C3] rounded-md px-4 py-[9px] cursor-pointer"
               onClick={() => document.getElementById("uploadInput").click()}
               onDragOver={(e) => e.preventDefault()}
               onDrop={(e) => {
                 e.preventDefault();
-                const files = Array.from(e.dataTransfer.files);
-                setUploadFiles((prev) => [...prev, ...files]);
+                const file = e.dataTransfer.files[0];
+                if (file) handleFileSelect(file);
               }}
             >
               <div className="flex gap-4">
                 <img className="w-5 h-5" src={img} alt="" />
-                <p className="text-sm text-[#555]">Drag and drop files here </p>
+                <p className="text-sm text-[#555]">
+                  Drag & drop or click to upload
+                </p>
               </div>
-              <button className="bg-[#FCEFDF] px-5 py-[6px] rounded text-[#BF6A02] text-[12px] font-normal">
+
+              <button className="bg-[#FCEFDF] px-5 py-[6px] rounded text-[#BF6A02] text-[12px]">
                 Choose file
               </button>
             </div>
@@ -582,74 +794,65 @@ const AddRecipe = () => {
             <input
               id="uploadInput"
               type="file"
-              multiple
               accept="image/*"
               className="hidden"
               onChange={(e) => {
-                const files = Array.from(e.target.files);
-                setUploadFiles((prev) => [...prev, ...files]);
+                const file = e.target.files[0];
+                if (file) handleFileSelect(file);
               }}
             />
 
-            {/* Preview */}
+            {/* Preview + Progress */}
             {uploadFiles.length > 0 && (
-              <div className="mt-4 space-y-3 max-h-48 overflow-y-auto">
-                {uploadFiles.map((file, i) => (
+              <div className="mt-4">
+                <img
+                  src={URL.createObjectURL(uploadFiles[0])}
+                  alt="preview"
+                  className="w-full h-40 object-cover rounded"
+                />
+
+                {/* Progress Bar */}
+                <div className="w-full bg-gray-200 h-2 rounded mt-3">
                   <div
-                    key={i}
-                    className="border rounded p-3 flex items-center gap-3"
-                  >
-                    <img
-                      src={URL.createObjectURL(file)}
-                      alt="preview"
-                      className="w-10 h-10 rounded object-cover"
-                    />
-                    <div className="flex-1">
-                      <p className="text-sm text-[#050710] truncate">
-                        {file.name}
-                      </p>
-                      <p className="text-xs text-[#777]">
-                        {(file.size / 1024 / 1024).toFixed(1)} MB
-                      </p>
-                      <div className="w-full bg-gray-200 rounded h-1.5 mt-1">
-                        <div
-                          className="bg-[#BF6A02] h-1.5 rounded"
-                          style={{ width: `${progress[file.name] || 0}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() =>
-                        setUploadFiles(uploadFiles.filter((_, j) => j !== i))
-                      }
-                      className="text-[#BF6A02] text-xs font-medium"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                ))}
+                    className="bg-green-500 h-2 rounded transition-all"
+                    style={{
+                      width: `${progress[uploadFiles[0].name] || 0}%`,
+                    }}
+                  ></div>
+                </div>
+
+                <p className="text-xs text-right text-[#555]">
+                  {progress[uploadFiles[0].name] || 0}%
+                </p>
               </div>
             )}
 
             <div className="flex justify-end gap-3 mt-6">
+              {" "}
               <button
-                onClick={() => setImageModal(false)}
+                onClick={() => {
+                  setUploadFiles([]);
+                  setImageModal(false);
+                }}
                 className="px-4 py-2 border border-[#C3C3C3] rounded-md text-sm"
               >
-                Cancel
-              </button>
+                {" "}
+                Cancel{" "}
+              </button>{" "}
               <button
                 onClick={() => {
                   if (uploadFiles.length > 0) {
                     setMainImage(uploadFiles[0]);
-                    setUploadFiles([]);
-                    setImageModal(false);
+                    setExistingMainImage("");
                   }
+                  setUploadFiles([]);
+                  setImageModal(false);
                 }}
                 className="px-4 py-2 bg-[#BF6A02] text-white rounded-md text-sm"
               >
-                Save
-              </button>
+                {" "}
+                Save{" "}
+              </button>{" "}
             </div>
           </div>
         </div>

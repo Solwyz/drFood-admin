@@ -40,6 +40,7 @@ const ProductManagement = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [categoy, setCategory] = useState("");
+  const [allProducts, setAllProducts] = useState([]);
 
   const { productId } = useParams();
 
@@ -47,21 +48,18 @@ const ProductManagement = () => {
 
   const fetchProducts = async () => {
     setLoading(true);
-    console.log(token);
+
     try {
       const res = await Api.get(`product/category/${productId}`, {
         Authorization: `Bearer ${token}`,
       });
 
-      console.log("✅ API Raw Response:", res);
-
       const data = Array.isArray(res.data?.data) ? res.data.data.reverse() : [];
-      setProducts(data);
-      setTotalPages(res.data?.totalPages || 1);
-      console.log("✅ Fetched Products:", data);
+
+      setAllProducts(data); // store master list
+      setProducts(data); // initial display
     } catch (err) {
       console.error("❌ Error fetching products:", err);
-      console.log("❌ Server responded with:", err.response?.data);
     } finally {
       setLoading(false);
     }
@@ -84,10 +82,31 @@ const ProductManagement = () => {
   };
 
   useEffect(() => {
+    let filtered = [...allProducts];
+
+    // 🔎 SEARCH
+    if (search.trim() !== "") {
+      const s = search.toLowerCase();
+      filtered = filtered.filter(
+        (p) => p.name.toLowerCase().includes(s) || String(p.id).includes(s)
+      );
+    }
+
+    // 🟢 FILTER BY STOCK
+    if (filter === "in") {
+      filtered = filtered.filter((p) => p.stock > 9);
+    } else if (filter === "out") {
+      filtered = filtered.filter((p) => p.stock <= 9);
+    }
+
+    setProducts(filtered);
+  }, [search, filter, allProducts]);
+
+  useEffect(() => {
     console.log(productId);
     fetchCategory();
     fetchProducts();
-  }, [page, search, filter]);
+  }, []);
 
   const handleDelete = async () => {
     console.log(deleteId);
@@ -96,7 +115,6 @@ const ProductManagement = () => {
         Authorization: `Bearer ${token}`,
       });
       if (res.status === 200) {
-        // alert("Product deleted successfully!");
         mySwal.fire({
           title: "Success!",
           text: "Product deleted successfully!",
@@ -142,6 +160,7 @@ const ProductManagement = () => {
           setEditProduct(null);
         }}
         onSuccess={fetchProducts}
+        categoryId={productId}
       />
     );
   }
@@ -231,7 +250,7 @@ const ProductManagement = () => {
                 <tr>
                   <th className="py-4 px-4 font-normal">Product ID</th>
                   <th className="py-4 px-4 font-normal">Product Detail</th>
-                  <th className="py-4 px-4 font-normal">Price</th>
+                  <th className="py-4 px-4 font-normal">Varients</th>
                   <th className="py-4 px-4 font-normal">Quantity</th>
                   <th className="py-4 px-4 font-normal">Status</th>
                   <th className="py-4 px-4 font-normal">Action</th>
@@ -253,19 +272,19 @@ const ProductManagement = () => {
                         {prod.name}
                       </td>
                       <td className="py-4 px-4 text-[#171717] font-normal text-sm">
-                        ₹{prod.totalPrice}
+                        {String(prod.variants.length).padStart(2, "0")}
                       </td>
                       <td className="py-4 px-4 text-[#171717] font-normal text-sm">
-                        {prod.stock}
+                        {prod.totalQuantity}
                       </td>
                       <td className="py-4 px-4 text-[#171717] font-normal text-sm">
-                        {prod.stock > 9 ? (
-                          <span className="bg-[#E1FDD7] text-[#29860A] px-4 py-[7px] rounded-lg text-xs leading-4 font-semibold">
-                            In Stock
-                          </span>
-                        ) : (
+                        {prod.variants.some((v) => v.stock <= 10) ? (
                           <span className="bg-[#FDD7D7] text-[#AC0202] px-4 py-[7px] rounded-lg text-xs leading-4 font-semibold">
                             Out of Stock
+                          </span>
+                        ) : (
+                          <span className="bg-[#E1FDD7] text-[#29860A] px-4 py-[7px] rounded-lg text-xs leading-4 font-semibold">
+                            In Stock
                           </span>
                         )}
                       </td>
@@ -456,10 +475,10 @@ const ProductManagement = () => {
 
                   <div className="flex gap-[40px]">
                     <span className="text-[#A2A2A2] font-regular w-[75px]">
-                      Price:
+                      Varients:
                     </span>
                     <span className="text-[#050710] font-regular">
-                      ₹{viewProduct.totalPrice}
+                      {String(viewProduct.variants.length).padStart(2, "0")}
                     </span>
                   </div>
                 </div>
