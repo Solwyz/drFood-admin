@@ -28,6 +28,7 @@ function Recipe() {
   const [category, setCategory] = useState("");
   const { categoryId } = useParams();
   const token = localStorage.getItem("token");
+  const [editRecipe, setEditRecipe] = useState(null);
 
   useEffect(() => {
     fetchCategory();
@@ -60,7 +61,18 @@ function Recipe() {
     });
   };
   if (showForm) {
-    return <AddRecipe />;
+    return (
+      <AddRecipe
+        onClose={() => {
+          setShowForm(false);
+          setEditRecipe(null);
+        }}
+        categoryId={categoryId}
+        category={category}
+        recipe={editRecipe}
+        onSuccess={fetchRecipe}
+      />
+    );
   }
 
   // ✅ Add new recipie
@@ -165,6 +177,8 @@ function Recipe() {
           <button
             className="flex bg-[#BF6A02] hover:bg-[#965B13] duration-300 h-10 items-center rounded-lg text-white text-sm font-light px-4"
             onClick={() => {
+              setEditRecipe(null);
+
               setShowForm(true);
             }}
           >
@@ -210,7 +224,7 @@ function Recipe() {
       <div className="bg-white min-h-[665px] p-4 mt-4">
         <div className="grid grid-cols-4 gap-5">
           {recipe.map((item, index) => (
-            <div className="p-4 bg-[#F8F8F8]">
+            <div key={item.id} className="p-4 bg-[#F8F8F8]">
               <img
                 className="w-full h-[146px]"
                 src={item.imageUrls[0]}
@@ -223,7 +237,14 @@ function Recipe() {
                 {item.name}
               </p>
               <div className="flex gap-4">
-                <button className="border border-[#B3B3B3] rounded-[8px] w-full py-2 mt-4">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setEditRecipe(item);
+                    setShowForm(true);
+                  }}
+                  className="border border-[#B3B3B3] rounded-[8px] w-full py-2 mt-4"
+                >
                   <p className="text-black text-[14px] font-light leading-5">
                     View
                   </p>
