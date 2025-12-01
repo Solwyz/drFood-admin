@@ -8,10 +8,8 @@ import searchIcon from "@assets/layouts/search.svg";
 
 import addIco from "@assets/products/Add.svg";
 
-
-
 import BlogForm from "./BlogForm";
-
+import deleteWarning from "@assets/layouts/logoutIvon.svg";
 
 
 function BlogPage() {
