@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Api from "../../Services/Api";
+import Api from "../../services/Api";
 import closeIcon from "@assets/layouts/close.svg";
 import filterIcon from "@assets/layouts/filter_alt.svg";
 import searchIcon from "@assets/layouts/search.svg";

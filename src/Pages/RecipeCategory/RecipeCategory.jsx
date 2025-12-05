@@ -10,7 +10,7 @@ import grayEye from "@assets/products/blackEye.svg";
 import blueEye from "@assets/products/blueEye.svg";
 
 import close from "@assets/products/close.svg";
-import Api from "../../Services/Api";
+import Api from "../../services/Api";
 import searchIcon from "@assets/layouts/search.svg";
 import filterIcon from "@assets/layouts/filter_alt.svg";
 import deleteWarning from "@assets/layouts/logoutIvon.svg";

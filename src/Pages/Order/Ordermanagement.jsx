@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Api from "../../Services/Api";
+import Api from "../../services/Api";
 import noOrder from "@assets/layouts/noOrder.png";
 import arrowRight from "@assets/layouts/arrowRight.svg";
 import arrowLeft from "@assets/layouts/arrowLeft.svg";
