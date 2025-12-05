@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Api from "../../Services/Api";
+import Api from "../../services/Api";
 import importIco from "@assets/products/Import.svg";
 import addIco from "@assets/products/Add.svg";
 import exportIco from "@assets/products/Export.svg";

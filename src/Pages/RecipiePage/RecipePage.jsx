@@ -7,7 +7,7 @@ import deleteHover from "@assets/products/deleteHover.svg";
 import editIco from "@assets/products/edit.svg";
 import editHover from "@assets/products/editHover.svg";
 import close from "@assets/products/close.svg";
-import Api from "../../Services/Api";
+import Api from "../../services/Api";
 import searchIcon from "@assets/layouts/search.svg";
 import arrowRight from "@assets/layouts/arrow_right.svg";
 import AddRecipe from "./AddRecipe";
