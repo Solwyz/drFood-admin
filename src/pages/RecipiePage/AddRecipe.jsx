@@ -10,7 +10,7 @@ import img from "@assets/layouts/image.svg";
 import addIcon from "@assets/layouts/cancelTag.svg";
 
 import upload from "@assets/layouts/upload.svg";
-import Api from "../../Services/Api";
+import Api from "../../services/Api";
 import { toast } from "react-toastify";
 
 const AddRecipe = ({

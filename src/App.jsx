@@ -2,20 +2,20 @@ import "./App.css";
 import { Routes, Route } from "react-router-dom";
 import Layout from "./Layout";
 import Login from "./auth/Login";
-import EnquiryPage from "./Pages/enquiryPage/EnquiryPage";
-import ProductPage from "./Pages/ProductPage/ProductPage";
+import EnquiryPage from "./pages/enquiryPage/EnquiryPage";
+import ProductPage from "./pages/ProductPage/ProductPage";
 import BlogPage from "./pages/blogPage/BlogPage";
 import BlogForm from "./pages/blogPage/BlogForm";
 import Categories from "./pages/CategoryPage/CategoryPage";
-import Dashboard from "./Pages/dashBoard/dashBoard";
-import OrderManagement from "./Pages/Order/Ordermanagement";
-import AdsAndBanners from "./Pages/AdsAndBanner/AdsAndBanner";
-import Recipe from "./Pages/RecipiePage/RecipePage";
-import AddRecipe from "./Pages/RecipiePage/AddRecipe";
-import UserManagement from "./Pages/UserManagement/UserManagement";
-import UserDetails from "./Pages/UserManagement/UserDetails";
-import SettingsPage from "./Pages/Settings/Settings";
-import RecipeCategory from "./Pages/RecipeCategory/RecipeCategory";
+import Dashboard from "./pages/dashBoard/dashBoard";
+import OrderManagement from "./pages/Order/Ordermanagement";
+import AdsAndBanners from "./pages/AdsAndBanner/AdsAndBanner";
+import Recipe from "./pages/RecipiePage/RecipePage";
+import AddRecipe from "./pages/RecipiePage/AddRecipe";
+import UserManagement from "./pages/UserManagement/UserManagement";
+import UserDetails from "./pages/UserManagement/UserDetails";
+import SettingsPage from "./pages/Settings/Settings";
+import RecipeCategory from "./pages/RecipeCategory/RecipeCategory";
 
 function App() {
   return (

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Api from "../../Services/Api";
+import Api from "../../services/Api";
 import saveIco from "@assets/layouts/save.svg";
 import cancelIco from "@assets/layouts/cancel.svg";
 import { toast, ToastContainer } from "react-toastify";

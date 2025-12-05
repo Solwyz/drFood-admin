@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import Api from "../../Services/Api";
+import Api from "../../services/Api";
 import SaveIcon from "@assets/products/save.svg";
 import cancelIcon from "@assets/products/cancel.svg";
 import img from "@assets/layouts/img.svg";
