@@ -4,7 +4,7 @@ import Logo from "@assets/Login/logo.png";
 import LoginBg from "@assets/Login/drfoodloginpage.png";
 import eyes from "@assets/Login/visibility.svg";
 import eyesOff from "@assets/Login/visibility_off.svg";
-import Api from "../Services/Api";
+import Api from "../services/Api";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -13,7 +13,6 @@ function Login() {
   const [error, setError] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
-
 
   useEffect(() => {
     const savedEmail = localStorage.getItem("rememberEmail");
@@ -28,6 +27,7 @@ function Login() {
   }, []);
 
   const handleLogin = async (e) => {
+    console.log(email, password);
     e.preventDefault();
 
     if (!email || !password) {
@@ -45,7 +45,6 @@ function Login() {
         const token = response.data.token;
         localStorage.setItem("token", token);
 
-      
         if (rememberMe) {
           localStorage.setItem("rememberEmail", email);
           localStorage.setItem("rememberPassword", password);
