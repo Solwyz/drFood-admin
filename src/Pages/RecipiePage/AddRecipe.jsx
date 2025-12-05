@@ -69,7 +69,6 @@ const AddRecipe = ({
       err.description = "Description is required";
     if (!formData.difficulty.trim()) err.difficulty = "Select a difficulty";
     if (!formData.time.trim()) err.time = "Estimated time is required";
-    if (tags.filter((t) => t.trim()).length < 4) err.tags = "Complete tags";
     if (ingredients.filter((i) => i.trim()).length === 0)
       err.ingredients = "At least one ingredient required";
     if (!mainImage && !existingMainImage) {
@@ -177,6 +176,7 @@ const AddRecipe = ({
 
   // ✅ Submit Handler with API
   const handleSubmit = async (e) => {
+    console.log("ENTERED");
     e.preventDefault();
     if (!validateForm()) {
       toast.error("Please fix form errors before submitting.");
@@ -237,7 +237,7 @@ const AddRecipe = ({
 
       // You can also support steps later:
       // steps.forEach((step) => payload.append("steps", step));
-
+      console.log(recipe);
       if (mainImage) payload.append("imageFiles", mainImage);
       let res;
       if (recipe) {
