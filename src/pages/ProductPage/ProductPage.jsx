@@ -50,7 +50,7 @@ const ProductManagement = () => {
     setLoading(true);
 
     try {
-      const res = await Api.get(`product/category/${productId}`, {
+      const res = await Api.get(`product/detail/${productId}`, {
         Authorization: `Bearer ${token}`,
       });
 
