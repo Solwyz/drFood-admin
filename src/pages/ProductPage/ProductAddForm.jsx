@@ -10,6 +10,7 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 
 function ProductAddForm({ product, onClose, onSuccess, categoryId }) {
+  const [nutrition,setNutrition] = useState([])
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -38,6 +39,8 @@ function ProductAddForm({ product, onClose, onSuccess, categoryId }) {
   const [progress, setProgress] = useState({});
   const mySwal = withReactContent(Swal);
   const [token] = useState(localStorage.getItem("token"));
+  const [nutritionMenu, setNutritionMenu] = useState(false);
+  const [selectedNutrition, setSelectedNutrition] = useState(null);
 
   useEffect(() => {
     if (product) {
@@ -47,6 +50,7 @@ function ProductAddForm({ product, onClose, onSuccess, categoryId }) {
         productCategoryId: product.category?.id || "",
         packageingType: product.packageingType || "",
         application: product.application || "",
+        nutrition: product.nutrition || "",
         style: product.style || "",
         slife: product.slife || "",
         countryOfOrigin: product.countryOfOrigin || "",
@@ -74,6 +78,7 @@ function ProductAddForm({ product, onClose, onSuccess, categoryId }) {
           setSecondaryFiles(product.imageUrls.slice(1));
         }
       }
+      setSelectedNutrition(product.nutrition);
     }
   }, [product]);
 
@@ -99,6 +104,25 @@ function ProductAddForm({ product, onClose, onSuccess, categoryId }) {
     setVariants((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const fetchNutrition = async () => {
+
+    try {
+      const res = await Api.get(`category/nutrition/all`, {
+        Authorization: `Bearer ${token}`,
+      });
+      console.log(res.data.data);
+
+      setNutrition(res.data.data);
+    } catch (err) {
+      console.error("❌ Error fetching nutrition:", err);
+    } finally {
+    }
+  };
+
+  useEffect(() => {
+    fetchNutrition();
+  }, []);
+
   const validate = () => {
     const newErrors = {};
 
@@ -117,6 +141,7 @@ function ProductAddForm({ product, onClose, onSuccess, categoryId }) {
     // Packaging Type
     if (!formData.packageingType.trim())
       newErrors.packageingType = "Packaging Type is required";
+
 
     // Application
     if (!formData.application.trim())
@@ -207,6 +232,9 @@ function ProductAddForm({ product, onClose, onSuccess, categoryId }) {
     query.append("stockAlertThreshold", formData.stockAlertThreshold);
     query.append("totalPrice", formData.totalPrice || "0");
     query.append("stock", formData.stock);
+    if (selectedNutrition) {
+      query.append("NutritionCategoryId", selectedNutrition.id);
+    }
 
     // Append variants correctly
     variantSizes.forEach((v) => query.append("variantSizes", v));
@@ -251,6 +279,13 @@ function ProductAddForm({ product, onClose, onSuccess, categoryId }) {
         });
         onSuccess?.();
         onClose?.();
+      } else {
+        console.error("Error saving product:", res);
+        mySwal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: res?.response?.data?.message || res?.message || "Error saving product.",
+        });
       }
     } catch (err) {
       console.error("Error saving product:", err);
@@ -321,16 +356,49 @@ function ProductAddForm({ product, onClose, onSuccess, categoryId }) {
                 {isSubmitted && errors.name && (
                   <p className="text-red-500 text-xs mt-1">{errors.name}</p>
                 )}
-                <div className="col-span-2 mt-4">
-                  <label className="font-normal text-sm text-[#050710] leading-4">
-                    Product ID
-                  </label>
-                  <input
-                    type="text"
-                    value={product?.id || "Auto Generated"}
-                    disabled
-                    className="w-full rounded-lg p-4 font-normal text-sm border  focus:outline-[#363636] border-[#C3C3C3] bg-white mt-2 h-12"
-                  />
+                <div className="mt-4 flex gap-4">
+                  <div className="w-[263px]">
+                    <label className="font-normal text-sm text-[#050710] leading-4">
+                      Product ID
+                    </label>
+                    <input
+                      type="text"
+                      value={product?.id || "Auto Generated"}
+                      disabled
+                      className="w-full rounded-lg p-4 font-normal text-sm border  focus:outline-[#363636] border-[#C3C3C3] bg-white mt-2 h-12"
+                    />
+                  </div>
+                  <div className="w-full">
+                    <label className="font-normal text-sm text-[#050710] leading-4">
+                      Select Category (Nutrition)
+                    </label>
+                    <div
+                      onClick={() => setNutritionMenu(!nutritionMenu)}
+                      className="w-full rounded-lg font-normal text-sm border flex items-center justify-between focus:outline-[#363636] border-[#C3C3C3] bg-white mt-2 h-12"
+                    >
+                      <p className="pl-4">
+                        {selectedNutrition?.name || "Select Nutrition"}
+                      </p>
+                    </div>
+                    {nutritionMenu && (
+                      <div className="w-[411px] rounded-lg mt-2 max-h-[236px] absolute bg-white border border-[#C3C3C3] overflow-y-auto z-20">
+                        {nutrition.map((item) => (
+                          <div
+                            key={item.id}
+                            onClick={() => {
+                              setSelectedNutrition(item)
+                              setNutritionMenu(false)
+                            }}
+                            className="hover:bg-[#F8F3F1] rounded-[4px] bg-white cursor-pointer my-[5px] mx-2"
+                          >
+                            <p className="p-2 text-[14px] font-light">
+                              {item.name}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {/* Description */}
@@ -707,6 +775,8 @@ function ProductAddForm({ product, onClose, onSuccess, categoryId }) {
                   <input
                     type="text"
                     name="price"
+                    value="India"
+                    disabled
                     placeholder="Country of Origin"
                     className="w-full rounded-lg p-4 font-normal text-sm border  focus:outline-[#363636] border-[#C3C3C3] bg-white mt-2 h-12"
                   />
